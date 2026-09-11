@@ -223,7 +223,7 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
               />
             )}
 
-            <div className="relative flex gap-2 justify-center">
+            <div className="relative flex gap-2 justify-center pt-3">
               {exercises[exIdx].map((setResult, setIdx) => (
                 <SetButton
                   key={setIdx}

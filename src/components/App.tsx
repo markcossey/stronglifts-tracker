@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useAppState } from '../hooks/useAppState'
+import { useWakeLock } from '../hooks/useWakeLock'
 import NavBar, { type TabId } from '../ui/NavBar'
 import SplashScreen from './SplashScreen'
 import Setup from './Setup'
@@ -10,6 +11,7 @@ import Settings from './Settings'
 
 export default function App() {
   const app = useAppState()
+  useWakeLock()
   const [activeTab, setActiveTab] = useState<TabId>('today')
   const [showSplash, setShowSplash] = useState(true)
 
