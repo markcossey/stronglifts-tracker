@@ -33,35 +33,35 @@ function getPlateColor(weight: number, units: Units): string {
 
 function getPlateHeight(weight: number, units: Units): number {
   if (units === 'kg') {
-    if (weight >= 20) return 115
-    if (weight >= 10) return 90
-    if (weight >= 5) return 72
-    if (weight >= 2.5) return 58
-    if (weight >= 1.25) return 48
-    return 38
+    if (weight >= 20) return 155
+    if (weight >= 10) return 120
+    if (weight >= 5) return 96
+    if (weight >= 2.5) return 78
+    if (weight >= 1.25) return 64
+    return 50
   }
-  if (weight >= 45) return 115
-  if (weight >= 35) return 102
-  if (weight >= 25) return 90
-  if (weight >= 10) return 71
-  if (weight >= 5) return 58
-  return 45
+  if (weight >= 45) return 155
+  if (weight >= 35) return 136
+  if (weight >= 25) return 120
+  if (weight >= 10) return 95
+  if (weight >= 5) return 78
+  return 60
 }
 
 function getPlateWidth(weight: number, units: Units): number {
   if (units === 'kg') {
-    if (weight >= 10) return 23
-    if (weight >= 5) return 16
-    if (weight >= 1.25) return 10
-    return 8
+    if (weight >= 10) return 30
+    if (weight >= 5) return 21
+    if (weight >= 1.25) return 14
+    return 11
   }
-  if (weight >= 25) return 23
-  if (weight >= 10) return 16
-  return 10
+  if (weight >= 25) return 30
+  if (weight >= 10) return 21
+  return 14
 }
 
-const FONT_SIZE_HORIZONTAL = 11
-const FONT_SIZE_VERTICAL = 9
+const FONT_SIZE_HORIZONTAL = 16
+const FONT_SIZE_VERTICAL = 14
 
 function getPlateLabelLines(weight: number, plateWidth: number): { lines: string[]; fontSize: number; horizontal: boolean } {
   const label = String(weight)
@@ -83,11 +83,11 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
   }
 
   const barStartX = 20
-  const barEndX = 90
-  const barY = 62
-  const barHeight = 10
-  const collarWidth = 13
-  const plateGap = 3
+  const barEndX = 100
+  const barY = 85
+  const barHeight = 14
+  const collarWidth = 18
+  const plateGap = 4
   const sleeveStartX = barEndX
 
   let totalPlateWidth = 0
@@ -95,8 +95,8 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
     totalPlateWidth += getPlateWidth(plate.weight, units) + plateGap
   }
 
-  const svgWidth = sleeveStartX + collarWidth + totalPlateWidth + 45
-  const svgHeight = 140
+  const svgWidth = sleeveStartX + collarWidth + totalPlateWidth + 50
+  const svgHeight = 190
 
   let plateX = sleeveStartX + collarWidth + 2
 
@@ -116,8 +116,8 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
       <div className="flex justify-center overflow-x-auto">
         <svg
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-          className="w-full max-w-md"
-          style={{ maxHeight: '160px' }}
+          className="w-full"
+          style={{ maxHeight: '220px' }}
         >
           {/* Bar shaft */}
           <rect
@@ -132,9 +132,9 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
           {/* Sleeve (thicker part) */}
           <rect
             x={barEndX}
-            y={barY - 8}
+            y={barY - 11}
             width={collarWidth + totalPlateWidth + 20}
-            height={16}
+            height={22}
             rx={2}
             fill="#52525b"
           />
@@ -142,9 +142,9 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
           {/* Collar */}
           <rect
             x={sleeveStartX}
-            y={barY - 13}
+            y={barY - 18}
             width={collarWidth}
-            height={26}
+            height={36}
             rx={2}
             fill="#a1a1aa"
           />
@@ -205,9 +205,9 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
           {/* End cap */}
           <rect
             x={plateX + 2}
-            y={barY - 10}
-            width={8}
-            height={20}
+            y={barY - 14}
+            width={11}
+            height={28}
             rx={2}
             fill="#a1a1aa"
           />
