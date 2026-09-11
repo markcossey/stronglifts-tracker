@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { AppState, LiftId, Units, Workout } from '../model/types'
 import {
+  convertStateUnits,
   createAppState,
   exportData,
   getWorkoutPrescription,
@@ -9,7 +10,6 @@ import {
   updateWorkoutInHistory,
   deleteWorkoutFromHistory,
 } from '../model/programme'
-import { importStrongLiftsCSV } from '../model/importCSV'
 import { clearDraft } from '../model/workoutDraft'
 
 const STORAGE_KEY = 'stronglifts-app-state'
@@ -46,8 +46,12 @@ export function useAppState() {
     setState(prev => prev ? deleteWorkoutFromHistory(prev, workoutId) : prev)
   }, [])
 
-  const updateSettings = useCallback((updates: Partial<Pick<AppState, 'units' | 'increments'>>) => {
+  const updateSettings = useCallback((updates: Partial<Pick<AppState, 'increments'>>) => {
     setState(prev => prev ? { ...prev, ...updates } : prev)
+  }, [])
+
+  const convertUnits = useCallback((units: Units) => {
+    setState(prev => prev ? convertStateUnits(prev, units) : prev)
   }, [])
 
   const updateLiftWeight = useCallback((liftId: LiftId, weight: number) => {
@@ -55,6 +59,7 @@ export function useAppState() {
       if (!prev) return prev
       return {
         ...prev,
+        lastWorkoutUndo: undefined,
         lifts: {
           ...prev.lifts,
           [liftId]: { ...prev.lifts[liftId], currentWeight: weight },
@@ -77,18 +82,9 @@ export function useAppState() {
     return state ? exportData(state) : ''
   }, [state])
 
-  const doImport = useCallback((json: string): string | null => {
-    const result = importData(json)
-    if ('error' in result) return result.error
-    setState(result)
-    return null
-  }, [])
-
-  const doImportCSV = useCallback((csv: string): string | null => {
-    const result = importStrongLiftsCSV(csv)
-    if ('error' in result) return result.error
-    setState(result)
-    return null
+  const replaceState = useCallback((next: AppState) => {
+    clearDraft()
+    setState(next)
   }, [])
 
   return {
@@ -102,8 +98,8 @@ export function useAppState() {
     initializeApp,
     resetApp,
     exportState: doExport,
-    importState: doImport,
-    importCSV: doImportCSV,
+    replaceState,
+    convertUnits,
     prescription: state ? getWorkoutPrescription(state) : null,
   }
 }

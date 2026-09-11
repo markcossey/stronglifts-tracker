@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { AppState, Workout } from '../model/types'
 import { LIFT_DISPLAY_NAMES } from '../model/defaults'
-import { isExerciseComplete } from '../model/programme'
+import { canUndoWorkout, isExerciseComplete } from '../model/programme'
+import { localDateString } from '../model/dates'
 import WorkoutDetail from './WorkoutDetail'
 
 interface HistoryProps {
@@ -12,12 +13,11 @@ interface HistoryProps {
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr + 'T00:00:00')
-  const today = new Date()
   const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
 
-  if (dateStr === today.toISOString().split('T')[0]) return 'Today'
-  if (dateStr === yesterday.toISOString().split('T')[0]) return 'Yesterday'
+  if (dateStr === localDateString()) return 'Today'
+  if (dateStr === localDateString(yesterday)) return 'Yesterday'
 
   return date.toLocaleDateString(undefined, {
     weekday: 'short',
@@ -35,6 +35,7 @@ export default function History({ state, onEditWorkout, onDeleteWorkout }: Histo
         <WorkoutDetail
           workout={selectedWorkout}
           units={state.units}
+          undoesProgress={canUndoWorkout(state, selectedWorkout.id)}
           onBack={() => setSelectedWorkout(null)}
           onSave={(updated) => {
             onEditWorkout(selectedWorkout.id, updated)

@@ -36,6 +36,12 @@ export interface Workout {
   endTime?: string
 }
 
+export interface WorkoutUndo {
+  workoutId: string
+  lifts: Record<LiftId, LiftState>
+  nextWorkoutType: WorkoutType
+}
+
 export interface AppState {
   version: number
   units: Units
@@ -44,6 +50,7 @@ export interface AppState {
   lifts: Record<LiftId, LiftState>
   increments: Record<LiftId, number>
   workouts: Workout[]
+  lastWorkoutUndo?: WorkoutUndo
 }
 
 export interface PrescribedExercise {

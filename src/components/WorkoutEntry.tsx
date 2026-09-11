@@ -1,11 +1,14 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { ExerciseResult, LiftId, PrescribedWorkout, SetResult, Workout, Units } from '../model/types'
 import { LIFT_DISPLAY_NAMES } from '../model/defaults'
+import { localDateString } from '../model/dates'
+import { clearDraft, saveDraft, type WorkoutDraft } from '../model/workoutDraft'
 import SetButton from '../ui/SetButton'
 import Button from '../ui/Button'
+import ConfirmDialog from '../ui/ConfirmDialog'
 import PlateDisplay from '../ui/PlateDisplay'
 import Sparkline from '../ui/Sparkline'
-import { clearDraft, saveDraft, type WorkoutDraft } from '../model/workoutDraft'
+import { playRestAlert, unlockRestAlert } from '../ui/restAlert'
 
 const REST_DURATION = 180
 
@@ -19,10 +22,16 @@ interface WorkoutEntryProps {
   onCancel: () => void
 }
 
+function formatTime(seconds: number): string {
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${m}:${s.toString().padStart(2, '0')}`
+}
+
 export default function WorkoutEntry({ prescription: initialPrescription, draft, units, increments, workouts, onComplete, onCancel }: WorkoutEntryProps) {
   const [prescription] = useState(() => draft?.prescription ?? initialPrescription)
   const [startTime] = useState(() => draft?.startTime ?? new Date().toISOString())
-  const [elapsed, setElapsed] = useState(() => Math.floor((Date.now() - new Date(startTime).getTime()) / 1000))
+  const [now, setNow] = useState(() => Date.now())
   const [exercises, setExercises] = useState<(SetResult | null)[][]>(() =>
     draft?.sets ?? prescription.exercises.map(ex =>
       Array.from({ length: ex.sets }, () => null),
@@ -33,12 +42,12 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
   )
   const [workoutNotes, setWorkoutNotes] = useState(draft?.workoutNotes ?? '')
   const [restEndTime, setRestEndTime] = useState<number | null>(draft?.restEndTime ?? null)
-  const [restRemaining, setRestRemaining] = useState(0)
   const [showPlates, setShowPlates] = useState<LiftId | null>(null)
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false)
   const [weightOverrides, setWeightOverrides] = useState<number[]>(
     () => draft?.weights ?? prescription.exercises.map(ex => ex.weight),
   )
+  const alertedRestEnd = useRef<number | null>(null)
 
   useEffect(() => {
     saveDraft({
@@ -52,27 +61,21 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
     })
   }, [prescription, startTime, exercises, notes, workoutNotes, weightOverrides, restEndTime])
 
-  const startRestTimer = useCallback(() => {
-    setRestEndTime(Date.now() + REST_DURATION * 1000)
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setElapsed(Math.floor((Date.now() - new Date(startTime).getTime()) / 1000))
-      if (restEndTime !== null) {
-        const remaining = Math.max(0, Math.ceil((restEndTime - Date.now()) / 1000))
-        setRestRemaining(remaining)
-        if (remaining === 0) setRestEndTime(null)
-      }
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [startTime, restEndTime])
+    if (restEndTime === null || now < restEndTime || alertedRestEnd.current === restEndTime) return
+    alertedRestEnd.current = restEndTime
+    // Stay quiet when resuming a workout whose rest ended long ago
+    if (now - restEndTime < 5000) playRestAlert()
+  }, [now, restEndTime])
 
-  function formatTime(seconds: number): string {
-    const m = Math.floor(seconds / 60)
-    const s = seconds % 60
-    return `${m}:${s.toString().padStart(2, '0')}`
-  }
+  const elapsed = Math.max(0, Math.floor((now - new Date(startTime).getTime()) / 1000))
+  const restRemaining = restEndTime === null ? null : Math.ceil((restEndTime - now) / 1000)
+  const restOver = restRemaining !== null && restRemaining <= 0
 
   function adjustWeight(exIdx: number, direction: 1 | -1) {
     const liftId = prescription.exercises[exIdx].liftId
@@ -101,20 +104,19 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
   }
 
   function updateSet(exerciseIdx: number, setIdx: number, result: SetResult | null) {
-    if (result !== null) {
-      const totalSets = prescription.exercises[exerciseIdx].sets
-      const isLastSet = setIdx === totalSets - 1
-      if (isLastSet) {
-        setRestEndTime(null)
-      } else {
-        startRestTimer()
-      }
+    const next = exercises.map(e => [...e])
+    next[exerciseIdx][setIdx] = result
+    setExercises(next)
+
+    if (result === null) return
+    unlockRestAlert()
+    if (next.every(ex => ex.every(s => s !== null))) {
+      setRestEndTime(null)
+    } else {
+      const start = Date.now()
+      setNow(start)
+      setRestEndTime(start + REST_DURATION * 1000)
     }
-    setExercises(prev => {
-      const next = prev.map(e => [...e])
-      next[exerciseIdx][setIdx] = result
-      return next
-    })
   }
 
   function allSetsRecorded(): boolean {
@@ -134,7 +136,7 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
 
     const workout: Workout = {
       id: crypto.randomUUID(),
-      date: new Date().toISOString().split('T')[0],
+      date: localDateString(),
       type: prescription.type,
       exercises: exerciseResults,
       notes: workoutNotes || undefined,
@@ -163,25 +165,29 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
         </div>
       </div>
 
-      {restEndTime !== null && (
+      {restRemaining !== null && (
         <button
           type="button"
           onClick={() => setRestEndTime(null)}
-          className="w-full bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-2"
+          className={`w-full bg-gray-900 rounded-xl border p-4 space-y-2 ${restOver ? 'border-amber-400' : 'border-gray-800'}`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-400">Rest Timer</span>
+            <span className={`text-sm font-medium ${restOver ? 'text-amber-400' : 'text-gray-400'}`}>
+              {restOver ? 'Rest over — next set' : 'Rest Timer'}
+            </span>
             <span className="text-xs text-gray-600">tap to dismiss</span>
           </div>
-          <div className="text-3xl font-mono font-bold text-center text-[#47c23f]">
-            {Math.floor(restRemaining / 60)}:{(restRemaining % 60).toString().padStart(2, '0')}
+          <div className={`text-3xl font-mono font-bold text-center ${restOver ? 'text-amber-400' : 'text-[#47c23f]'}`}>
+            {restOver ? `+${formatTime(Math.abs(restRemaining))}` : formatTime(restRemaining)}
           </div>
-          <div className="w-full bg-gray-800 rounded-full h-1.5">
-            <div
-              className="bg-[#47c23f] h-1.5 rounded-full transition-all duration-1000"
-              style={{ width: `${(restRemaining / REST_DURATION) * 100}%` }}
-            />
-          </div>
+          {!restOver && (
+            <div className="w-full bg-gray-800 rounded-full h-1.5">
+              <div
+                className="bg-[#47c23f] h-1.5 rounded-full transition-all duration-1000"
+                style={{ width: `${(restRemaining / REST_DURATION) * 100}%` }}
+              />
+            </div>
+          )}
         </button>
       )}
 
@@ -243,7 +249,7 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
               />
             )}
 
-            <div className="flex gap-3 justify-center">
+            <div className="relative flex gap-2 justify-center">
               {exercises[exIdx].map((setResult, setIdx) => (
                 <SetButton
                   key={setIdx}
@@ -300,16 +306,16 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
       </Button>
 
       {showDiscardConfirm && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-900 rounded-2xl p-6 max-w-sm w-full space-y-4 border border-gray-800">
-            <h3 className="text-lg font-bold text-gray-100">Discard workout?</h3>
-            <p className="text-gray-400">The sets you've logged in this workout will be lost.</p>
-            <div className="flex gap-3">
-              <Button variant="ghost" fullWidth onClick={() => setShowDiscardConfirm(false)}>Keep going</Button>
-              <Button variant="danger" fullWidth onClick={discardWorkout}>Discard</Button>
-            </div>
-          </div>
-        </div>
+        <ConfirmDialog
+          title="Discard workout?"
+          confirmLabel="Discard"
+          cancelLabel="Keep going"
+          destructive
+          onConfirm={discardWorkout}
+          onCancel={() => setShowDiscardConfirm(false)}
+        >
+          <p>The sets you've logged in this workout will be lost.</p>
+        </ConfirmDialog>
       )}
     </div>
   )

@@ -2,9 +2,13 @@ import { describe, test, expect } from 'vitest'
 import type { AppState, ExerciseResult, LiftId, SetResult, Workout } from './types'
 import {
   calculateDeloadWeight,
+  calculatePlates,
+  canUndoWorkout,
+  convertStateUnits,
   convertWeight,
   createAppState,
   degradeRepScheme,
+  deleteWorkoutFromHistory,
   exportData,
   getLiftsForWorkout,
   getPersonalRecord,
@@ -16,6 +20,7 @@ import {
   updateWorkoutInHistory,
 } from './programme'
 import { DEFAULT_STARTING_WEIGHTS_KG } from './defaults'
+import { localDateString } from './dates'
 
 function makeCompletedSets(count: number, reps: number): SetResult[] {
   return Array.from({ length: count }, () => ({
@@ -518,5 +523,63 @@ describe('StrongLifts Programme State Machine', () => {
     state = processWorkoutResult(state, workout)
     expect(state.lifts.squat.status).toBe('stalled')
     expect(state.lifts.squat.failureCount).toBe(2)
+  })
+
+  test('Deleting the most recent workout restores weights and next workout type', () => {
+    const state = createTestState({ squat: 60 })
+    const workout = makeWorkout(state, [
+      makeSuccessfulExercise('squat', 60),
+      makeSuccessfulExercise('bench', 20),
+      makeSuccessfulExercise('row', 30),
+    ])
+    const after = processWorkoutResult(state, workout)
+    expect(canUndoWorkout(after, workout.id)).toBe(true)
+
+    const reverted = deleteWorkoutFromHistory(after, workout.id)
+
+    expect(reverted.lifts).toEqual(state.lifts)
+    expect(reverted.nextWorkoutType).toBe('A')
+    expect(reverted.workouts).toEqual([])
+    expect(reverted.lastWorkoutUndo).toBeUndefined()
+  })
+
+  test('Deleting an older workout leaves current weights alone', () => {
+    let state = createTestState({ squat: 60 })
+    const first = makeWorkout(state, [makeSuccessfulExercise('squat', 60)], 0)
+    state = processWorkoutResult(state, first)
+    const second = makeWorkout(state, [makeSuccessfulExercise('squat', 62.5)], 1)
+    state = processWorkoutResult(state, second)
+
+    expect(canUndoWorkout(state, first.id)).toBe(false)
+    const afterDelete = deleteWorkoutFromHistory(state, first.id)
+
+    expect(afterDelete.lifts.squat.currentWeight).toBe(65)
+    expect(afterDelete.workouts.map(w => w.id)).toEqual([second.id])
+  })
+
+  test('Switching units converts history, rounds working weights to plates, and resets increments', () => {
+    let state = createTestState({ squat: 60 })
+    state = processWorkoutResult(state, makeWorkout(state, [makeSuccessfulExercise('squat', 60)]))
+    expect(state.lifts.squat.currentWeight).toBe(62.5)
+
+    const lb = convertStateUnits(state, 'lb')
+
+    expect(lb.units).toBe('lb')
+    expect(lb.lifts.squat.currentWeight).toBe(140)
+    expect(lb.workouts[0].exercises[0].prescribedWeight).toBe(132.3)
+    expect(getPersonalRecord(lb.workouts, 'squat')?.weight).toBe(132.3)
+    expect(lb.increments.squat).toBe(5)
+    expect(lb.lastWorkoutUndo).toBeUndefined()
+  })
+
+  test('Plate calculator reports the weight it can actually load', () => {
+    expect(calculatePlates(61, 'kg').loadedWeight).toBe(61)
+    expect(calculatePlates(137, 'lb').loadedWeight).toBe(135)
+    expect(calculatePlates(15, 'kg')).toMatchObject({ isBarOnly: true, loadedWeight: 20 })
+  })
+
+  test('localDateString uses the local calendar date', () => {
+    expect(localDateString(new Date(2026, 0, 5, 0, 30))).toBe('2026-01-05')
+    expect(localDateString(new Date(2026, 11, 31, 23, 59))).toBe('2026-12-31')
   })
 })

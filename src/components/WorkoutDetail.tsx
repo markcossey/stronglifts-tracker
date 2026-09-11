@@ -3,6 +3,7 @@ import type { Workout } from '../model/types'
 import { LIFT_DISPLAY_NAMES } from '../model/defaults'
 import { isExerciseComplete } from '../model/programme'
 import Button from '../ui/Button'
+import ConfirmDialog from '../ui/ConfirmDialog'
 
 interface WorkoutDetailProps {
   workout: Workout
@@ -10,9 +11,10 @@ interface WorkoutDetailProps {
   onBack: () => void
   onSave: (updated: Workout) => void
   onDelete: () => void
+  undoesProgress: boolean
 }
 
-export default function WorkoutDetail({ workout, units, onBack, onSave, onDelete }: WorkoutDetailProps) {
+export default function WorkoutDetail({ workout, units, onBack, onSave, onDelete, undoesProgress }: WorkoutDetailProps) {
   const [editing, setEditing] = useState(false)
   const [editNotes, setEditNotes] = useState(workout.notes ?? '')
   const [exerciseNotes, setExerciseNotes] = useState<(string | undefined)[]>(
@@ -141,16 +143,19 @@ export default function WorkoutDetail({ workout, units, onBack, onSave, onDelete
       )}
 
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-900 rounded-2xl p-6 max-w-sm w-full space-y-4 border border-gray-800">
-            <h3 className="text-lg font-bold text-gray-100">Delete workout?</h3>
-            <p className="text-gray-400">This cannot be undone. Your current weights will not change.</p>
-            <div className="flex gap-3">
-              <Button variant="ghost" fullWidth onClick={() => setShowDeleteConfirm(false)}>Cancel</Button>
-              <Button variant="danger" fullWidth onClick={onDelete}>Delete</Button>
-            </div>
-          </div>
-        </div>
+        <ConfirmDialog
+          title="Delete workout?"
+          confirmLabel="Delete"
+          destructive
+          onConfirm={onDelete}
+          onCancel={() => setShowDeleteConfirm(false)}
+        >
+          <p>
+            {undoesProgress
+              ? 'This is your most recent workout, so your working weights and next workout will go back to what they were before it.'
+              : 'This cannot be undone. Your current weights will not change.'}
+          </p>
+        </ConfirmDialog>
       )}
     </div>
   )

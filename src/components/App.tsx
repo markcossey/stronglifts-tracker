@@ -47,9 +47,9 @@ export default function App() {
           state={app.state}
           onUpdateSettings={app.updateSettings}
           onUpdateLiftWeight={app.updateLiftWeight}
+          onConvertUnits={app.convertUnits}
           onExport={app.exportState}
-          onImport={app.importState}
-          onImportCSV={app.importCSV}
+          onReplaceState={app.replaceState}
           onReset={app.resetApp}
         />
       )}

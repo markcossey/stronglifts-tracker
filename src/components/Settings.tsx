@@ -1,65 +1,53 @@
 import { useState, useRef } from 'react'
 import type { AppState, LiftId, Units } from '../model/types'
 import { ALL_LIFTS, LIFT_DISPLAY_NAMES } from '../model/defaults'
-import { convertWeight, exportCSV } from '../model/programme'
+import { exportCSV, importData } from '../model/programme'
+import { importStrongLiftsCSV } from '../model/importCSV'
+import { localDateString } from '../model/dates'
 import Button from '../ui/Button'
+import ConfirmDialog from '../ui/ConfirmDialog'
+import NumberField from '../ui/NumberField'
 
 interface SettingsProps {
   state: AppState
-  onUpdateSettings: (updates: Partial<Pick<AppState, 'units' | 'increments'>>) => void
+  onUpdateSettings: (updates: Partial<Pick<AppState, 'increments'>>) => void
   onUpdateLiftWeight: (liftId: LiftId, weight: number) => void
+  onConvertUnits: (units: Units) => void
   onExport: () => string
-  onImport: (json: string) => string | null
-  onImportCSV: (csv: string) => string | null
+  onReplaceState: (state: AppState) => void
   onReset: () => void
+}
+
+interface PendingImport {
+  state: AppState
+  source: string
+}
+
+function workoutCount(n: number): string {
+  return `${n} workout${n === 1 ? '' : 's'}`
 }
 
 export default function Settings({
   state,
   onUpdateSettings,
   onUpdateLiftWeight,
+  onConvertUnits,
   onExport,
-  onImport,
-  onImportCSV,
+  onReplaceState,
   onReset,
 }: SettingsProps) {
   const [showResetConfirm, setShowResetConfirm] = useState(false)
+  const [pendingUnits, setPendingUnits] = useState<Units | null>(null)
+  const [pendingImport, setPendingImport] = useState<PendingImport | null>(null)
   const [importError, setImportError] = useState<string | null>(null)
   const [importSuccess, setImportSuccess] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const csvInputRef = useRef<HTMLInputElement>(null)
 
-  function handleUnitsChange(newUnits: Units) {
-    if (newUnits === state.units) return
-
-    const confirmed = window.confirm(
-      `Convert all weights from ${state.units} to ${newUnits}? This will convert your current weights and increments.`,
-    )
-    if (!confirmed) return
-
-    const newIncrements = { ...state.increments }
-    for (const liftId of ALL_LIFTS) {
-      newIncrements[liftId] = convertWeight(state.increments[liftId], state.units, newUnits)
-      const newWeight = convertWeight(state.lifts[liftId].currentWeight, state.units, newUnits)
-      onUpdateLiftWeight(liftId, newWeight)
-    }
-    onUpdateSettings({ units: newUnits, increments: newIncrements })
-  }
-
-  function handleIncrementChange(liftId: LiftId, value: string) {
-    const num = parseFloat(value)
-    if (!isNaN(num) && num > 0) {
-      onUpdateSettings({
-        increments: { ...state.increments, [liftId]: num },
-      })
-    }
-  }
-
-  function handleWeightChange(liftId: LiftId, value: string) {
-    const num = parseFloat(value)
-    if (!isNaN(num) && num >= 0) {
-      onUpdateLiftWeight(liftId, num)
-    }
+  function confirmUnits() {
+    if (!pendingUnits) return
+    onConvertUnits(pendingUnits)
+    setPendingUnits(null)
   }
 
   function handleExportJSON() {
@@ -68,7 +56,7 @@ export default function Settings({
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `stronglifts-backup-${new Date().toISOString().split('T')[0]}.json`
+    a.download = `stronglifts-backup-${localDateString()}.json`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -79,57 +67,40 @@ export default function Settings({
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `stronglifts-history-${new Date().toISOString().split('T')[0]}.csv`
+    a.download = `stronglifts-history-${localDateString()}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }
 
-  function handleImport() {
-    fileInputRef.current?.click()
-  }
-
-  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFileSelect(
+    e: React.ChangeEvent<HTMLInputElement>,
+    parse: (text: string) => AppState | { error: string },
+    source: string,
+  ) {
     const file = e.target.files?.[0]
+    e.target.value = ''
     if (!file) return
 
     const reader = new FileReader()
     reader.onload = () => {
-      const error = onImport(reader.result as string)
-      if (error) {
-        setImportError(error)
-        setImportSuccess(false)
+      const result = parse(reader.result as string)
+      setImportSuccess(false)
+      if ('error' in result) {
+        setImportError(result.error)
       } else {
         setImportError(null)
-        setImportSuccess(true)
-        setTimeout(() => setImportSuccess(false), 3000)
+        setPendingImport({ state: result, source })
       }
     }
     reader.readAsText(file)
-    e.target.value = ''
   }
 
-  function handleImportCSV() {
-    csvInputRef.current?.click()
-  }
-
-  function handleCSVFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    const reader = new FileReader()
-    reader.onload = () => {
-      const error = onImportCSV(reader.result as string)
-      if (error) {
-        setImportError(error)
-        setImportSuccess(false)
-      } else {
-        setImportError(null)
-        setImportSuccess(true)
-        setTimeout(() => setImportSuccess(false), 3000)
-      }
-    }
-    reader.readAsText(file)
-    e.target.value = ''
+  function confirmImport() {
+    if (!pendingImport) return
+    onReplaceState(pendingImport.state)
+    setPendingImport(null)
+    setImportSuccess(true)
+    setTimeout(() => setImportSuccess(false), 3000)
   }
 
   return (
@@ -143,7 +114,9 @@ export default function Settings({
             <button
               key={u}
               type="button"
-              onClick={() => handleUnitsChange(u)}
+              onClick={() => {
+                if (u !== state.units) setPendingUnits(u)
+              }}
               className={`py-2 rounded-lg text-sm font-medium transition-colors ${
                 state.units === u
                   ? 'bg-[#3da836] text-white'
@@ -165,14 +138,12 @@ export default function Settings({
               {LIFT_DISPLAY_NAMES[liftId]}
             </label>
             <div className="flex items-center gap-2">
-              <input
+              <NumberField
                 id={`inc-${liftId}`}
-                type="number"
-                inputMode="decimal"
                 step={0.25}
                 min={0.25}
                 value={state.increments[liftId]}
-                onChange={e => handleIncrementChange(liftId, e.target.value)}
+                onCommit={num => onUpdateSettings({ increments: { ...state.increments, [liftId]: num } })}
                 className="w-20 px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-right text-sm font-mono text-gray-100 focus:border-[#47c23f] outline-none"
               />
               <span className="text-xs text-gray-500 w-5">{state.units}</span>
@@ -190,14 +161,12 @@ export default function Settings({
               {LIFT_DISPLAY_NAMES[liftId]}
             </label>
             <div className="flex items-center gap-2">
-              <input
+              <NumberField
                 id={`weight-${liftId}`}
-                type="number"
-                inputMode="decimal"
                 step={state.increments[liftId]}
                 min={0}
                 value={state.lifts[liftId].currentWeight}
-                onChange={e => handleWeightChange(liftId, e.target.value)}
+                onCommit={num => onUpdateLiftWeight(liftId, num)}
                 className="w-24 px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-right text-sm font-mono text-gray-100 focus:border-[#47c23f] outline-none"
               />
               <span className="text-xs text-gray-500 w-5">{state.units}</span>
@@ -215,24 +184,24 @@ export default function Settings({
           <Button variant="secondary" fullWidth onClick={handleExportCSV}>
             Export CSV History
           </Button>
-          <Button variant="secondary" fullWidth onClick={handleImport}>
+          <Button variant="secondary" fullWidth onClick={() => fileInputRef.current?.click()}>
             Import JSON Backup
           </Button>
-          <Button variant="secondary" fullWidth onClick={handleImportCSV}>
+          <Button variant="secondary" fullWidth onClick={() => csvInputRef.current?.click()}>
             Import StrongLifts CSV
           </Button>
           <input
             ref={fileInputRef}
             type="file"
             accept=".json"
-            onChange={handleFileSelect}
+            onChange={e => handleFileSelect(e, importData, 'backup')}
             className="hidden"
           />
           <input
             ref={csvInputRef}
             type="file"
             accept=".csv"
-            onChange={handleCSVFileSelect}
+            onChange={e => handleFileSelect(e, importStrongLiftsCSV, 'StrongLifts export')}
             className="hidden"
           />
           {importError && (
@@ -256,17 +225,47 @@ export default function Settings({
         StrongLifts 5×5 Tracker v1.0
       </div>
 
+      {pendingUnits && (
+        <ConfirmDialog
+          title={`Switch to ${pendingUnits === 'kg' ? 'kilograms' : 'pounds'}?`}
+          confirmLabel="Convert"
+          onConfirm={confirmUnits}
+          onCancel={() => setPendingUnits(null)}
+        >
+          <p>
+            Your workout history and records will be converted to {pendingUnits}. Working weights are
+            rounded to the nearest {pendingUnits === 'kg' ? '2.5 kg' : '5 lb'}, and increments reset to
+            the {pendingUnits} defaults.
+          </p>
+        </ConfirmDialog>
+      )}
+
+      {pendingImport && (
+        <ConfirmDialog
+          title="Replace all data?"
+          confirmLabel="Replace"
+          destructive
+          onConfirm={confirmImport}
+          onCancel={() => setPendingImport(null)}
+        >
+          <p>
+            This replaces your current data ({workoutCount(state.workouts.length)}, working weights and
+            settings) with the {workoutCount(pendingImport.state.workouts.length)} in this {pendingImport.source}.
+          </p>
+          <p>Export a backup first if you might want your current data back.</p>
+        </ConfirmDialog>
+      )}
+
       {showResetConfirm && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-900 rounded-2xl p-6 max-w-sm w-full space-y-4 border border-gray-800">
-            <h3 className="text-lg font-bold text-gray-100">Reset all data?</h3>
-            <p className="text-gray-400">This will delete all workouts and settings. Consider exporting a backup first.</p>
-            <div className="flex gap-3">
-              <Button variant="ghost" fullWidth onClick={() => setShowResetConfirm(false)}>Cancel</Button>
-              <Button variant="danger" fullWidth onClick={onReset}>Reset</Button>
-            </div>
-          </div>
-        </div>
+        <ConfirmDialog
+          title="Reset all data?"
+          confirmLabel="Reset"
+          destructive
+          onConfirm={onReset}
+          onCancel={() => setShowResetConfirm(false)}
+        >
+          <p>This will delete all workouts and settings. Consider exporting a backup first.</p>
+        </ConfirmDialog>
       )}
     </div>
   )

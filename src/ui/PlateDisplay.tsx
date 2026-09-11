@@ -227,6 +227,12 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
           ))}
         </div>
       )}
+
+      {Math.abs(result.loadedWeight - weight) > 1e-6 && (
+        <div className="text-xs text-amber-400">
+          Can't load {weight} {units} exactly with standard plates. This setup loads {result.loadedWeight} {units}.
+        </div>
+      )}
     </button>
   )
 }

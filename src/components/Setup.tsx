@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { LiftId, Units } from '../model/types'
 import { ALL_LIFTS, LIFT_DISPLAY_NAMES, getDefaultStartingWeights } from '../model/defaults'
 import Button from '../ui/Button'
+import NumberField from '../ui/NumberField'
 
 interface SetupProps {
   onComplete: (units: Units, weights: Record<LiftId, number>) => void
@@ -15,13 +16,6 @@ export default function Setup({ onComplete }: SetupProps) {
   function handleUnitsChange(u: Units) {
     setUnits(u)
     setWeights(getDefaultStartingWeights(u))
-  }
-
-  function handleWeightChange(liftId: LiftId, value: string) {
-    const num = parseFloat(value)
-    if (!isNaN(num) && num >= 0) {
-      setWeights(prev => ({ ...prev, [liftId]: num }))
-    }
   }
 
   const steps = [
@@ -80,14 +74,12 @@ export default function Setup({ onComplete }: SetupProps) {
               {LIFT_DISPLAY_NAMES[liftId]}
             </label>
             <div className="flex items-center gap-2">
-              <input
+              <NumberField
                 id={`weight-${liftId}`}
-                type="number"
-                inputMode="decimal"
                 step={units === 'kg' ? 2.5 : 5}
                 min={0}
                 value={weights[liftId]}
-                onChange={e => handleWeightChange(liftId, e.target.value)}
+                onCommit={num => setWeights(prev => ({ ...prev, [liftId]: num }))}
                 className="w-24 px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-right text-lg font-mono text-gray-100 focus:border-[#47c23f] focus:ring-1 focus:ring-[#47c23f] outline-none"
               />
               <span className="text-gray-500 text-sm w-6">{units}</span>

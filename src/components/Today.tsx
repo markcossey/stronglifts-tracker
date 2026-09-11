@@ -3,6 +3,7 @@ import type { AppState, PrescribedWorkout, Workout, WorkoutType } from '../model
 import { LIFT_DISPLAY_NAMES } from '../model/defaults'
 import { getWorkoutPrescription } from '../model/programme'
 import { loadDraft } from '../model/workoutDraft'
+import { localDateString } from '../model/dates'
 import Button from '../ui/Button'
 import Dashboard from './Dashboard'
 import WorkoutEntry from './WorkoutEntry'
@@ -76,7 +77,7 @@ export default function Today({ state, prescription, onCompleteWorkout }: TodayP
   }
 
   const lastWorkout = state.workouts[state.workouts.length - 1]
-  const today = new Date().toISOString().split('T')[0]
+  const today = localDateString()
   const didWorkoutToday = lastWorkout?.date === today
 
   return (

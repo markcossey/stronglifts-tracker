@@ -143,6 +143,11 @@ export function processWorkoutResult(state: AppState, workout: Workout): AppStat
     lifts: newLifts,
     nextWorkoutType: workout.type === 'A' ? 'B' : 'A',
     workouts: [...state.workouts, workout],
+    lastWorkoutUndo: {
+      workoutId: workout.id,
+      lifts: state.lifts,
+      nextWorkoutType: state.nextWorkoutType,
+    },
   }
 }
 
@@ -157,20 +162,59 @@ export function updateWorkoutInHistory(
   }
 }
 
+export function canUndoWorkout(state: AppState, workoutId: string): boolean {
+  return state.lastWorkoutUndo?.workoutId === workoutId
+}
+
 export function deleteWorkoutFromHistory(
   state: AppState,
   workoutId: string,
 ): AppState {
-  return {
-    ...state,
-    workouts: state.workouts.filter(w => w.id !== workoutId),
+  const workouts = state.workouts.filter(w => w.id !== workoutId)
+  const undo = state.lastWorkoutUndo
+  if (undo?.workoutId === workoutId) {
+    return {
+      ...state,
+      workouts,
+      lifts: undo.lifts,
+      nextWorkoutType: undo.nextWorkoutType,
+      lastWorkoutUndo: undefined,
+    }
   }
+  return { ...state, workouts }
 }
 
 export function convertWeight(weight: number, from: Units, to: Units): number {
   if (from === to) return weight
   if (from === 'kg' && to === 'lb') return Math.round(weight * 2.20462 * 10) / 10
   return Math.round((weight / 2.20462) * 10) / 10
+}
+
+export function convertStateUnits(state: AppState, to: Units): AppState {
+  const from = state.units
+  if (from === to) return state
+
+  const plateStep = to === 'kg' ? 2.5 : 5
+  const lifts = { ...state.lifts }
+  for (const liftId of ALL_LIFTS) {
+    const converted = convertWeight(state.lifts[liftId].currentWeight, from, to)
+    lifts[liftId] = { ...state.lifts[liftId], currentWeight: Math.round(converted / plateStep) * plateStep }
+  }
+
+  return {
+    ...state,
+    units: to,
+    lifts,
+    increments: getDefaultIncrements(to),
+    workouts: state.workouts.map(w => ({
+      ...w,
+      exercises: w.exercises.map(e => ({
+        ...e,
+        prescribedWeight: convertWeight(e.prescribedWeight, from, to),
+      })),
+    })),
+    lastWorkoutUndo: undefined,
+  }
 }
 
 export function createAppState(
@@ -218,20 +262,8 @@ export function importData(json: string): AppState | { error: string } {
 }
 
 export function getWorkoutStats(workouts: Workout[]) {
-  let successful = 0
-  let failed = 0
-  let resets = 0
-
-  for (const workout of workouts) {
-    const allComplete = workout.exercises.every(isExerciseComplete)
-    if (allComplete) {
-      successful++
-    } else {
-      failed++
-    }
-  }
-
-  return { successful, failed, resets, total: workouts.length }
+  const successful = workouts.filter(w => w.exercises.every(isExerciseComplete)).length
+  return { successful, failed: workouts.length - successful, total: workouts.length }
 }
 
 export function getLiftHistory(workouts: Workout[], liftId: LiftId) {
@@ -265,6 +297,7 @@ export interface PlateResult {
   perSide: { weight: number; count: number }[]
   barWeight: number
   totalWeight: number
+  loadedWeight: number
   isBarOnly: boolean
 }
 
@@ -278,7 +311,7 @@ export function calculatePlates(
     : [45, 35, 25, 10, 5, 2.5]
 
   if (totalWeight <= barWeight) {
-    return { perSide: [], barWeight, totalWeight, isBarOnly: true }
+    return { perSide: [], barWeight, totalWeight, loadedWeight: barWeight, isBarOnly: true }
   }
 
   let remaining = (totalWeight - barWeight) / 2
@@ -292,7 +325,8 @@ export function calculatePlates(
     }
   }
 
-  return { perSide, barWeight, totalWeight, isBarOnly: false }
+  const loadedPerSide = perSide.reduce((sum, p) => sum + p.weight * p.count, 0)
+  return { perSide, barWeight, totalWeight, loadedWeight: barWeight + 2 * loadedPerSide, isBarOnly: false }
 }
 
 export function exportCSV(state: AppState): string {

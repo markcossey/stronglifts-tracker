@@ -8,6 +8,8 @@ interface SetButtonProps {
   onReset: () => void
 }
 
+// The rep picker is positioned against the nearest `relative` ancestor (the set row), so it
+// stays on screen for the first and last sets.
 export default function SetButton({
   targetReps,
   actualReps,
@@ -22,12 +24,13 @@ export default function SetButton({
   const isFailed = actualReps !== null && actualReps < targetReps
 
   function handleTap() {
-    if (isPending) {
+    if (showRepPicker) {
+      setShowRepPicker(false)
+    } else if (isPending) {
       onComplete()
     } else if (isComplete) {
       setShowRepPicker(true)
     } else {
-      setShowRepPicker(false)
       onReset()
     }
   }
@@ -59,28 +62,40 @@ export default function SetButton({
   }
 
   return (
-    <div className="relative">
+    <>
       <button
         type="button"
         onClick={handleTap}
-        className={`w-16 h-16 rounded-full border-[2.5px] ${borderColor} ${bgColor} ${textColor} flex items-center justify-center text-xl font-bold select-none active:scale-95 transition-all`}
+        className={`flex-1 max-w-16 aspect-square rounded-full border-[2.5px] ${borderColor} ${bgColor} ${textColor} flex items-center justify-center text-xl font-bold select-none active:scale-95 transition-all ${
+          showRepPicker ? 'relative z-20 ring-2 ring-red-500 ring-offset-2 ring-offset-gray-900' : ''
+        }`}
       >
         {content}
       </button>
       {showRepPicker && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-gray-800 rounded-xl shadow-lg border border-gray-700 p-2 flex gap-1 z-10">
-          {Array.from({ length: targetReps }, (_, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => handleRepSelect(i)}
-              className="w-10 h-10 rounded-lg bg-red-900/50 text-red-400 font-bold hover:bg-red-900 active:bg-red-800 text-sm"
-            >
-              {i}
-            </button>
-          ))}
-        </div>
+        <>
+          <button
+            type="button"
+            aria-label="Close rep picker"
+            onClick={() => setShowRepPicker(false)}
+            className="fixed inset-0 z-10 cursor-default"
+          />
+          <div className="absolute left-0 right-0 top-full mt-2 flex justify-center z-20 pointer-events-none">
+            <div className="pointer-events-auto bg-gray-800 rounded-xl shadow-lg border border-gray-700 p-2 flex gap-1">
+              {Array.from({ length: targetReps }, (_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => handleRepSelect(i)}
+                  className="w-10 h-10 rounded-lg bg-red-900/50 text-red-400 font-bold hover:bg-red-900 active:bg-red-800 text-sm"
+                >
+                  {i}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
       )}
-    </div>
+    </>
   )
 }
