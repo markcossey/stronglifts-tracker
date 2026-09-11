@@ -37,18 +37,8 @@ export function playTapSound(kind: TapKind) {
   else playTone(660, 0.04, 0, 0.12)
 }
 
-// iPhones ignore navigator.vibrate, but on iOS 18+ toggling a native switch control gives a
-// haptic tick. Unofficial, so it may stop working in a future iOS release.
-export function tapHaptic() {
-  if (typeof navigator.vibrate === 'function' && navigator.vibrate(10)) return
-  const label = document.createElement('label')
-  label.ariaHidden = 'true'
-  label.style.display = 'none'
-  const input = document.createElement('input')
-  input.type = 'checkbox'
-  input.setAttribute('switch', '')
-  label.appendChild(input)
-  document.head.appendChild(label)
-  label.click()
-  label.remove()
+// For browsers with the Vibration API (Android). iPhones don't have it; their haptic comes from the
+// native switch in TapTarget.
+export function vibrateTap() {
+  navigator.vibrate?.(10)
 }

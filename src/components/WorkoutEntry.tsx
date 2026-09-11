@@ -8,7 +8,7 @@ import Button from '../ui/Button'
 import ConfirmDialog from '../ui/ConfirmDialog'
 import PlateDisplay from '../ui/PlateDisplay'
 import Sparkline from '../ui/Sparkline'
-import { playRestAlert, playTapSound, tapHaptic, unlockAudio } from '../ui/feedback'
+import { playRestAlert, playTapSound, unlockAudio, vibrateTap } from '../ui/feedback'
 
 const REST_DURATION = 180
 
@@ -112,7 +112,7 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
 
     unlockAudio()
     if (tapFeedback.sound) playTapSound(result === null ? 'reset' : result.completed ? 'complete' : 'fail')
-    if (tapFeedback.haptics) tapHaptic()
+    if (tapFeedback.haptics) vibrateTap()
 
     if (result === null) return
     if (next.every(ex => ex.every(s => s !== null))) {
@@ -245,6 +245,7 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
                   key={setIdx}
                   targetReps={ex.reps}
                   actualReps={setResult?.reps ?? null}
+                  haptic={tapFeedback.haptics}
                   onComplete={() =>
                     updateSet(exIdx, setIdx, {
                       reps: ex.reps,

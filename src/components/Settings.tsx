@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react'
 import type { AppState, LiftId, TapFeedback, Units } from '../model/types'
 import { ALL_LIFTS, DEFAULT_TAP_FEEDBACK, LIFT_DISPLAY_NAMES } from '../model/defaults'
-import { playTapSound, tapHaptic, unlockAudio } from '../ui/feedback'
+import { playTapSound, unlockAudio, vibrateTap } from '../ui/feedback'
+import TapTarget from '../ui/TapTarget'
 import { exportCSV, importData } from '../model/programme'
 import { importStrongLiftsCSV } from '../model/importCSV'
 import { localDateString } from '../model/dates'
@@ -43,18 +44,21 @@ function ToggleRow({ id, label, hint, checked, onChange }: ToggleRowProps) {
         <label htmlFor={id} className="text-sm text-gray-300">{label}</label>
         <p className="text-xs text-gray-500">{hint}</p>
       </div>
-      <button
+      <TapTarget
         id={id}
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={`relative w-11 h-6 shrink-0 rounded-full transition-colors ${checked ? 'bg-[#3da836]' : 'bg-gray-700'}`}
+        haptic
+        label={label}
+        checked={checked}
+        onTap={() => onChange(!checked)}
+        round="999px"
+        className="w-11 h-6 shrink-0 rounded-full"
       >
-        <span
-          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${checked ? 'translate-x-5' : ''}`}
-        />
-      </button>
+        <span className={`relative w-full h-full rounded-full transition-colors ${checked ? 'bg-[#3da836]' : 'bg-gray-700'}`}>
+          <span
+            className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${checked ? 'translate-x-5' : ''}`}
+          />
+        </span>
+      </TapTarget>
     </div>
   )
 }
@@ -83,7 +87,7 @@ export default function Settings({
       unlockAudio()
       playTapSound('complete')
     }
-    if (update.haptics) tapHaptic()
+    if (update.haptics) vibrateTap()
   }
 
   function confirmUnits() {
