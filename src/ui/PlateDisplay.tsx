@@ -33,31 +33,43 @@ function getPlateColor(weight: number, units: Units): string {
 
 function getPlateHeight(weight: number, units: Units): number {
   if (units === 'kg') {
-    if (weight >= 20) return 90
-    if (weight >= 10) return 70
-    if (weight >= 5) return 55
-    if (weight >= 2.5) return 45
-    if (weight >= 1.25) return 38
-    return 30
+    if (weight >= 20) return 115
+    if (weight >= 10) return 90
+    if (weight >= 5) return 72
+    if (weight >= 2.5) return 58
+    if (weight >= 1.25) return 48
+    return 38
   }
-  if (weight >= 45) return 90
-  if (weight >= 35) return 80
-  if (weight >= 25) return 70
-  if (weight >= 10) return 55
-  if (weight >= 5) return 45
-  return 35
+  if (weight >= 45) return 115
+  if (weight >= 35) return 102
+  if (weight >= 25) return 90
+  if (weight >= 10) return 71
+  if (weight >= 5) return 58
+  return 45
 }
 
 function getPlateWidth(weight: number, units: Units): number {
   if (units === 'kg') {
-    if (weight >= 10) return 18
-    if (weight >= 5) return 12
-    if (weight >= 1.25) return 8
-    return 6
+    if (weight >= 10) return 23
+    if (weight >= 5) return 16
+    if (weight >= 1.25) return 10
+    return 8
   }
-  if (weight >= 25) return 18
-  if (weight >= 10) return 12
-  return 8
+  if (weight >= 25) return 23
+  if (weight >= 10) return 16
+  return 10
+}
+
+const FONT_SIZE_HORIZONTAL = 11
+const FONT_SIZE_VERTICAL = 9
+
+function getPlateLabelLines(weight: number, plateWidth: number): { lines: string[]; fontSize: number; horizontal: boolean } {
+  const label = String(weight)
+  const estimatedHorizontalWidth = label.length * FONT_SIZE_HORIZONTAL * 0.62
+  if (estimatedHorizontalWidth <= plateWidth - 4) {
+    return { lines: [label], fontSize: FONT_SIZE_HORIZONTAL, horizontal: true }
+  }
+  return { lines: label.split(''), fontSize: FONT_SIZE_VERTICAL, horizontal: false }
 }
 
 export default function PlateDisplay({ weight, units, onClose }: PlateDisplayProps) {
@@ -71,11 +83,11 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
   }
 
   const barStartX = 20
-  const barEndX = 80
-  const barY = 50
-  const barHeight = 8
-  const collarWidth = 10
-  const plateGap = 2
+  const barEndX = 90
+  const barY = 62
+  const barHeight = 10
+  const collarWidth = 13
+  const plateGap = 3
   const sleeveStartX = barEndX
 
   let totalPlateWidth = 0
@@ -83,8 +95,8 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
     totalPlateWidth += getPlateWidth(plate.weight, units) + plateGap
   }
 
-  const svgWidth = sleeveStartX + collarWidth + totalPlateWidth + 40
-  const svgHeight = 110
+  const svgWidth = sleeveStartX + collarWidth + totalPlateWidth + 45
+  const svgHeight = 140
 
   let plateX = sleeveStartX + collarWidth + 2
 
@@ -104,8 +116,8 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
       <div className="flex justify-center overflow-x-auto">
         <svg
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-          className="w-full max-w-sm"
-          style={{ maxHeight: '120px' }}
+          className="w-full max-w-md"
+          style={{ maxHeight: '160px' }}
         >
           {/* Bar shaft */}
           <rect
@@ -120,9 +132,9 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
           {/* Sleeve (thicker part) */}
           <rect
             x={barEndX}
-            y={barY - 6}
+            y={barY - 8}
             width={collarWidth + totalPlateWidth + 20}
-            height={12}
+            height={16}
             rx={2}
             fill="#52525b"
           />
@@ -130,9 +142,9 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
           {/* Collar */}
           <rect
             x={sleeveStartX}
-            y={barY - 10}
+            y={barY - 13}
             width={collarWidth}
-            height={20}
+            height={26}
             rx={2}
             fill="#a1a1aa"
           />
@@ -151,6 +163,10 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
             const borderColor = isWhite ? '#94a3b8' : '#52525b'
             const textFill = isWhite ? '#1e293b' : isDark ? '#a1a1aa' : '#000000'
 
+            const { lines, fontSize, horizontal } = getPlateLabelLines(plate.weight, pw)
+            const lineHeight = fontSize * 1.05
+            const startY = barY - ((lines.length - 1) * lineHeight) / 2
+
             return (
               <g key={i}>
                 <rect
@@ -163,20 +179,25 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
                   stroke={needsBorder ? borderColor : 'none'}
                   strokeWidth={needsBorder ? 1 : 0}
                 />
-                {pw >= 14 && (
-                  <text
-                    x={x + pw / 2}
-                    y={barY}
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fontSize={8}
-                    fontWeight="bold"
-                    fill={textFill}
-                    opacity={0.8}
-                  >
-                    {plate.weight}
-                  </text>
-                )}
+                <text
+                  x={x + pw / 2}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fontSize={fontSize}
+                  fontWeight="bold"
+                  fill={textFill}
+                  opacity={0.85}
+                >
+                  {horizontal ? (
+                    <tspan y={barY}>{lines[0]}</tspan>
+                  ) : (
+                    lines.map((line, li) => (
+                      <tspan key={li} x={x + pw / 2} y={startY + li * lineHeight}>
+                        {line}
+                      </tspan>
+                    ))
+                  )}
+                </text>
               </g>
             )
           })}
@@ -184,9 +205,9 @@ export default function PlateDisplay({ weight, units, onClose }: PlateDisplayPro
           {/* End cap */}
           <rect
             x={plateX + 2}
-            y={barY - 8}
-            width={6}
-            height={16}
+            y={barY - 10}
+            width={8}
+            height={20}
             rx={2}
             fill="#a1a1aa"
           />
