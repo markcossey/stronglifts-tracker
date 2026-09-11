@@ -1,17 +1,20 @@
 import { useState } from 'react'
-import type { AppState, LiftId } from '../model/types'
+import type { AppState, BodyWeightEntry, LiftId } from '../model/types'
 import { ALL_LIFTS, LIFT_DISPLAY_NAMES } from '../model/defaults'
+import BodyWeightCard from './BodyWeightCard'
 import LiftChart from './LiftChart'
 import PRSection from './PRSection'
 
 interface ProgressProps {
   state: AppState
   onOpenLift: (liftId: LiftId) => void
+  onOpenBodyWeight: () => void
+  onSaveBodyWeight: (entry: BodyWeightEntry, previousDate?: string) => void
 }
 
 type ChartRange = '10' | '30' | 'all'
 
-export default function Progress({ state, onOpenLift }: ProgressProps) {
+export default function Progress({ state, onOpenLift, onOpenBodyWeight, onSaveBodyWeight }: ProgressProps) {
   const [selectedLift, setSelectedLift] = useState<LiftId>('squat')
   const [range, setRange] = useState<ChartRange>('30')
 
@@ -20,6 +23,8 @@ export default function Progress({ state, onOpenLift }: ProgressProps) {
       <h1 className="text-2xl font-bold text-gray-100">Progress</h1>
 
       <PRSection state={state} onOpenLift={onOpenLift} />
+
+      <BodyWeightCard state={state} onOpen={onOpenBodyWeight} onSave={onSaveBodyWeight} />
 
       <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-4">
         <div className="flex items-center justify-between">

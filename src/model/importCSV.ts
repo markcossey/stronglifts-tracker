@@ -8,7 +8,7 @@ import type {
   WorkoutType,
 } from './types'
 import { ALL_LIFTS, createDefaultLiftState, getDefaultIncrements } from './defaults'
-import { isExerciseComplete, processLiftResult } from './programme'
+import { convertWeight, isExerciseComplete, processLiftResult } from './programme'
 
 const EXERCISE_MAP: Record<string, LiftId> = {
   'squat': 'squat',
@@ -53,6 +53,7 @@ interface CSVRow {
   date: string
   workoutNum: number
   workoutName: string
+  bodyWeight: number
   exercise: string
   setsReps: string
   startTime: string
@@ -80,6 +81,7 @@ function parseRow(fields: string[]): CSVRow | null {
     date: fields[0]?.trim() ?? '',
     workoutNum: parseInt(fields[1] ?? '0', 10),
     workoutName: fields[2]?.replace(/"/g, '').trim() ?? '',
+    bodyWeight: parseFloat(fields[4] ?? ''),
     exercise,
     setsReps: fields[6]?.trim() ?? '',
     startTime: fields[14]?.trim() ?? '',
@@ -118,6 +120,9 @@ export function importStrongLiftsCSV(csv: string): AppState | { error: string } 
   const lines = csv.split(/\r?\n/).filter(l => l.trim())
   if (lines.length < 2) return { error: 'CSV file is empty or has no data rows' }
 
+  // StrongLifts labels the column with its unit, e.g. "Body Weight (LB)", even when lifts are in kg
+  const bodyWeightInLb = /body weight \(lb\)/i.test(lines[0])
+
   const rows: CSVRow[] = []
   for (let i = 1; i < lines.length; i++) {
     const fields = parseCSVLine(lines[i])
@@ -135,6 +140,7 @@ export function importStrongLiftsCSV(csv: string): AppState | { error: string } 
   }
 
   const workouts: Workout[] = []
+  const bodyWeightByDate = new Map<string, number>()
 
   const sortedWorkoutNums = Array.from(workoutGroups.keys()).sort((a, b) => a - b)
 
@@ -144,6 +150,10 @@ export function importStrongLiftsCSV(csv: string): AppState | { error: string } 
     const date = first.date.replace(/\//g, '-')
     const type = resolveWorkoutType(first.workoutName)
     const duration = parseDuration(first.startTime, first.endTime)
+
+    if (first.bodyWeight > 0) {
+      bodyWeightByDate.set(date, bodyWeightInLb ? convertWeight(first.bodyWeight, 'lb', 'kg') : first.bodyWeight)
+    }
 
     const exercises: ExerciseResult[] = []
 
@@ -221,5 +231,7 @@ export function importStrongLiftsCSV(csv: string): AppState | { error: string } 
     lifts,
     increments,
     workouts,
+    bodyWeights: Array.from(bodyWeightByDate, ([date, weight]) => ({ date, weight }))
+      .sort((a, b) => a.date.localeCompare(b.date)),
   }
 }

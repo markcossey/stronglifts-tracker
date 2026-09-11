@@ -10,6 +10,9 @@ import History from './History'
 import Progress from './Progress'
 import Settings from './Settings'
 import LiftDetail from './LiftDetail'
+import BodyWeightDetail from './BodyWeightDetail'
+
+type DetailPage = { type: 'lift'; liftId: LiftId } | { type: 'bodyWeight' }
 
 export default function App() {
   const app = useAppState()
@@ -20,23 +23,27 @@ export default function App() {
 
   const dismissSplash = useCallback(() => setShowSplash(false), [])
 
-  // The lift page is shown over the current tab, which stays mounted (hidden) so an
+  // Detail pages are shown over the current tab, which stays mounted (hidden) so an
   // in-progress workout and its rest timer carry on underneath.
-  const [openLift, setOpenLift] = useState<LiftId | null>(null)
+  const [detail, setDetail] = useState<DetailPage | null>(null)
   const savedScroll = useRef(0)
+  const isDetailOpen = detail !== null
 
-  const openLiftDetail = useCallback((liftId: LiftId) => {
+  const openDetail = useCallback((page: DetailPage) => {
     savedScroll.current = window.scrollY
-    setOpenLift(liftId)
+    setDetail(page)
   }, [])
+  const openLiftDetail = useCallback((liftId: LiftId) => openDetail({ type: 'lift', liftId }), [openDetail])
+  const openBodyWeight = useCallback(() => openDetail({ type: 'bodyWeight' }), [openDetail])
+  const closeDetail = useCallback(() => setDetail(null), [])
 
   useLayoutEffect(() => {
-    window.scrollTo(0, openLift ? 0 : savedScroll.current)
-  }, [openLift])
+    window.scrollTo(0, isDetailOpen ? 0 : savedScroll.current)
+  }, [isDetailOpen])
 
   function changeTab(tab: TabId) {
     savedScroll.current = 0
-    setOpenLift(null)
+    setDetail(null)
     setActiveTab(tab)
   }
 
@@ -50,13 +57,15 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-950 pb-20 safe-area-pt">
-      <div hidden={openLift !== null}>
+      <div hidden={isDetailOpen}>
       {activeTab === 'today' && app.prescription && (
         <Today
           state={app.state}
           prescription={app.prescription}
           onCompleteWorkout={app.completeWorkout}
           onOpenLift={openLiftDetail}
+          onOpenBodyWeight={openBodyWeight}
+          onSaveBodyWeight={app.saveBodyWeight}
         />
       )}
       {activeTab === 'history' && (
@@ -67,7 +76,12 @@ export default function App() {
         />
       )}
       {activeTab === 'progress' && (
-        <Progress state={app.state} onOpenLift={openLiftDetail} />
+        <Progress
+          state={app.state}
+          onOpenLift={openLiftDetail}
+          onOpenBodyWeight={openBodyWeight}
+          onSaveBodyWeight={app.saveBodyWeight}
+        />
       )}
       {activeTab === 'settings' && (
         <Settings
@@ -81,8 +95,16 @@ export default function App() {
         />
       )}
       </div>
-      {openLift && (
-        <LiftDetail liftId={openLift} state={app.state} onBack={() => setOpenLift(null)} />
+      {detail?.type === 'lift' && (
+        <LiftDetail liftId={detail.liftId} state={app.state} onBack={closeDetail} />
+      )}
+      {detail?.type === 'bodyWeight' && (
+        <BodyWeightDetail
+          state={app.state}
+          onSave={app.saveBodyWeight}
+          onDelete={app.deleteBodyWeight}
+          onBack={closeDetail}
+        />
       )}
       <NavBar activeTab={activeTab} onTabChange={changeTab} />
     </div>

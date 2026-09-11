@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import type { AppState, LiftId, Units, Workout } from '../model/types'
+import type { AppState, BodyWeightEntry, LiftId, Units, Workout } from '../model/types'
+import { deleteBodyWeight, saveBodyWeight } from '../model/bodyWeight'
 import {
   convertStateUnits,
   createAppState,
@@ -54,6 +55,14 @@ export function useAppState() {
     setState(prev => prev ? convertStateUnits(prev, units) : prev)
   }, [])
 
+  const saveBodyWeightEntry = useCallback((entry: BodyWeightEntry, previousDate?: string) => {
+    setState(prev => prev ? saveBodyWeight(prev, entry, previousDate) : prev)
+  }, [])
+
+  const deleteBodyWeightEntry = useCallback((date: string) => {
+    setState(prev => prev ? deleteBodyWeight(prev, date) : prev)
+  }, [])
+
   const updateLiftWeight = useCallback((liftId: LiftId, weight: number) => {
     setState(prev => {
       if (!prev) return prev
@@ -100,6 +109,8 @@ export function useAppState() {
     exportState: doExport,
     replaceState,
     convertUnits,
+    saveBodyWeight: saveBodyWeightEntry,
+    deleteBodyWeight: deleteBodyWeightEntry,
     prescription: state ? getWorkoutPrescription(state) : null,
   }
 }

@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import type { AppState, LiftId, PrescribedWorkout, Workout, WorkoutType } from '../model/types'
+import type { AppState, BodyWeightEntry, LiftId, PrescribedWorkout, Workout, WorkoutType } from '../model/types'
 import { DEFAULT_TAP_FEEDBACK, LIFT_DISPLAY_NAMES } from '../model/defaults'
 import { getWorkoutPrescription } from '../model/programme'
 import { loadDraft } from '../model/workoutDraft'
 import { localDateString } from '../model/dates'
 import Button from '../ui/Button'
+import BodyWeightCard from './BodyWeightCard'
 import Dashboard from './Dashboard'
 import WorkoutEntry from './WorkoutEntry'
 import WorkoutSummary from './WorkoutSummary'
@@ -14,6 +15,8 @@ interface TodayProps {
   prescription: PrescribedWorkout
   onCompleteWorkout: (workout: Workout) => void
   onOpenLift: (liftId: LiftId) => void
+  onOpenBodyWeight: () => void
+  onSaveBodyWeight: (entry: BodyWeightEntry, previousDate?: string) => void
 }
 
 type ViewState =
@@ -26,7 +29,14 @@ function getPrescriptionForType(state: AppState, type: WorkoutType): PrescribedW
   return getWorkoutPrescription(overridden)
 }
 
-export default function Today({ state, prescription, onCompleteWorkout, onOpenLift }: TodayProps) {
+export default function Today({
+  state,
+  prescription,
+  onCompleteWorkout,
+  onOpenLift,
+  onOpenBodyWeight,
+  onSaveBodyWeight,
+}: TodayProps) {
   const [draft, setDraft] = useState(loadDraft)
   const [view, setView] = useState<ViewState>(draft ? { mode: 'workout' } : { mode: 'overview' })
   const [typeOverride, setTypeOverride] = useState<WorkoutType | null>(null)
@@ -144,6 +154,8 @@ export default function Today({ state, prescription, onCompleteWorkout, onOpenLi
       </div>
 
       <Dashboard state={state} onOpenLift={onOpenLift} />
+
+      <BodyWeightCard state={state} onOpen={onOpenBodyWeight} onSave={onSaveBodyWeight} />
     </div>
   )
 }

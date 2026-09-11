@@ -87,4 +87,12 @@ describe('StrongLifts CSV import', () => {
     expect(state.lifts.ohp.failureCount).toBe(0)
     expect(state.lifts.ohp.status).toBe('deloading')
   })
+
+  test('imports body weight from each workout, converted from pounds', () => {
+    expect(importOrThrow(csv).bodyWeights).toEqual([
+      { date: '2026-09-01', weight: 81.6 },
+      { date: '2026-09-03', weight: 81.6 },
+      { date: '2026-09-05', weight: 81.6 },
+    ])
+  })
 })

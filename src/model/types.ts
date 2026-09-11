@@ -36,6 +36,11 @@ export interface Workout {
   endTime?: string
 }
 
+export interface BodyWeightEntry {
+  date: string
+  weight: number
+}
+
 export interface TapFeedback {
   sound: boolean
   haptics: boolean
@@ -57,6 +62,7 @@ export interface AppState {
   workouts: Workout[]
   lastWorkoutUndo?: WorkoutUndo
   tapFeedback?: TapFeedback
+  bodyWeights?: BodyWeightEntry[]
 }
 
 export interface PrescribedExercise {

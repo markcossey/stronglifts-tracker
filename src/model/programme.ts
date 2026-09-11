@@ -213,6 +213,7 @@ export function convertStateUnits(state: AppState, to: Units): AppState {
         prescribedWeight: convertWeight(e.prescribedWeight, from, to),
       })),
     })),
+    bodyWeights: state.bodyWeights?.map(e => ({ ...e, weight: convertWeight(e.weight, from, to) })),
     lastWorkoutUndo: undefined,
   }
 }
