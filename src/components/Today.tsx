@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { AppState, PrescribedWorkout, Workout, WorkoutType } from '../model/types'
-import { LIFT_DISPLAY_NAMES } from '../model/defaults'
+import { DEFAULT_TAP_FEEDBACK, LIFT_DISPLAY_NAMES } from '../model/defaults'
 import { getWorkoutPrescription } from '../model/programme'
 import { loadDraft } from '../model/workoutDraft'
 import { localDateString } from '../model/dates'
@@ -51,6 +51,7 @@ export default function Today({ state, prescription, onCompleteWorkout }: TodayP
           draft={draft}
           units={state.units}
           increments={state.increments}
+          tapFeedback={state.tapFeedback ?? DEFAULT_TAP_FEEDBACK}
           workouts={state.workouts}
           onComplete={handleWorkoutComplete}
           onCancel={() => {

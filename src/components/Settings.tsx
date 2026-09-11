@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
-import type { AppState, LiftId, Units } from '../model/types'
-import { ALL_LIFTS, LIFT_DISPLAY_NAMES } from '../model/defaults'
+import type { AppState, LiftId, TapFeedback, Units } from '../model/types'
+import { ALL_LIFTS, DEFAULT_TAP_FEEDBACK, LIFT_DISPLAY_NAMES } from '../model/defaults'
+import { playTapSound, tapHaptic, unlockAudio } from '../ui/feedback'
 import { exportCSV, importData } from '../model/programme'
 import { importStrongLiftsCSV } from '../model/importCSV'
 import { localDateString } from '../model/dates'
@@ -10,7 +11,7 @@ import NumberField from '../ui/NumberField'
 
 interface SettingsProps {
   state: AppState
-  onUpdateSettings: (updates: Partial<Pick<AppState, 'increments'>>) => void
+  onUpdateSettings: (updates: Partial<Pick<AppState, 'increments' | 'tapFeedback'>>) => void
   onUpdateLiftWeight: (liftId: LiftId, weight: number) => void
   onConvertUnits: (units: Units) => void
   onExport: () => string
@@ -25,6 +26,37 @@ interface PendingImport {
 
 function workoutCount(n: number): string {
   return `${n} workout${n === 1 ? '' : 's'}`
+}
+
+interface ToggleRowProps {
+  id: string
+  label: string
+  hint: string
+  checked: boolean
+  onChange: (checked: boolean) => void
+}
+
+function ToggleRow({ id, label, hint, checked, onChange }: ToggleRowProps) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <div>
+        <label htmlFor={id} className="text-sm text-gray-300">{label}</label>
+        <p className="text-xs text-gray-500">{hint}</p>
+      </div>
+      <button
+        id={id}
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={`relative w-11 h-6 shrink-0 rounded-full transition-colors ${checked ? 'bg-[#3da836]' : 'bg-gray-700'}`}
+      >
+        <span
+          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${checked ? 'translate-x-5' : ''}`}
+        />
+      </button>
+    </div>
+  )
 }
 
 export default function Settings({
@@ -43,6 +75,16 @@ export default function Settings({
   const [importSuccess, setImportSuccess] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const csvInputRef = useRef<HTMLInputElement>(null)
+  const tapFeedback = state.tapFeedback ?? DEFAULT_TAP_FEEDBACK
+
+  function updateTapFeedback(update: Partial<TapFeedback>) {
+    onUpdateSettings({ tapFeedback: { ...tapFeedback, ...update } })
+    if (update.sound) {
+      unlockAudio()
+      playTapSound('complete')
+    }
+    if (update.haptics) tapHaptic()
+  }
 
   function confirmUnits() {
     if (!pendingUnits) return
@@ -127,6 +169,24 @@ export default function Settings({
             </button>
           ))}
         </div>
+      </section>
+
+      <section className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-4">
+        <h3 className="font-semibold text-gray-100">Set Tap Feedback</h3>
+        <ToggleRow
+          id="tap-sound"
+          label="Sound"
+          hint="May be muted when your phone is on silent."
+          checked={tapFeedback.sound}
+          onChange={sound => updateTapFeedback({ sound })}
+        />
+        <ToggleRow
+          id="tap-haptics"
+          label="Haptics"
+          hint="On iPhone, needs iOS 18 or later."
+          checked={tapFeedback.haptics}
+          onChange={haptics => updateTapFeedback({ haptics })}
+        />
       </section>
 
       <section className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-3">

@@ -46,7 +46,7 @@ export function useAppState() {
     setState(prev => prev ? deleteWorkoutFromHistory(prev, workoutId) : prev)
   }, [])
 
-  const updateSettings = useCallback((updates: Partial<Pick<AppState, 'increments'>>) => {
+  const updateSettings = useCallback((updates: Partial<Pick<AppState, 'increments' | 'tapFeedback'>>) => {
     setState(prev => prev ? { ...prev, ...updates } : prev)
   }, [])
 

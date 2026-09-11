@@ -1,4 +1,6 @@
-import type { LiftId, LiftState, RepScheme, Units } from './types'
+import type { LiftId, LiftState, RepScheme, TapFeedback, Units } from './types'
+
+export const DEFAULT_TAP_FEEDBACK: TapFeedback = { sound: true, haptics: true }
 
 export const ALL_LIFTS: LiftId[] = ['squat', 'bench', 'row', 'ohp', 'deadlift']
 

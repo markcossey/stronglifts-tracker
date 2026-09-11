@@ -36,6 +36,11 @@ export interface Workout {
   endTime?: string
 }
 
+export interface TapFeedback {
+  sound: boolean
+  haptics: boolean
+}
+
 export interface WorkoutUndo {
   workoutId: string
   lifts: Record<LiftId, LiftState>
@@ -51,6 +56,7 @@ export interface AppState {
   increments: Record<LiftId, number>
   workouts: Workout[]
   lastWorkoutUndo?: WorkoutUndo
+  tapFeedback?: TapFeedback
 }
 
 export interface PrescribedExercise {

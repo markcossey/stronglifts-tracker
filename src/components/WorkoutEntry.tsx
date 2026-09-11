@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import type { ExerciseResult, LiftId, PrescribedWorkout, SetResult, Workout, Units } from '../model/types'
+import type { ExerciseResult, LiftId, PrescribedWorkout, SetResult, TapFeedback, Workout, Units } from '../model/types'
 import { LIFT_DISPLAY_NAMES } from '../model/defaults'
 import { localDateString } from '../model/dates'
 import { clearDraft, saveDraft, type WorkoutDraft } from '../model/workoutDraft'
@@ -8,7 +8,7 @@ import Button from '../ui/Button'
 import ConfirmDialog from '../ui/ConfirmDialog'
 import PlateDisplay from '../ui/PlateDisplay'
 import Sparkline from '../ui/Sparkline'
-import { playRestAlert, unlockRestAlert } from '../ui/restAlert'
+import { playRestAlert, playTapSound, tapHaptic, unlockAudio } from '../ui/feedback'
 
 const REST_DURATION = 180
 
@@ -17,6 +17,7 @@ interface WorkoutEntryProps {
   draft: WorkoutDraft | null
   units: string
   increments: Record<LiftId, number>
+  tapFeedback: TapFeedback
   workouts: Workout[]
   onComplete: (workout: Workout) => void
   onCancel: () => void
@@ -28,7 +29,7 @@ function formatTime(seconds: number): string {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
-export default function WorkoutEntry({ prescription: initialPrescription, draft, units, increments, workouts, onComplete, onCancel }: WorkoutEntryProps) {
+export default function WorkoutEntry({ prescription: initialPrescription, draft, units, increments, tapFeedback, workouts, onComplete, onCancel }: WorkoutEntryProps) {
   const [prescription] = useState(() => draft?.prescription ?? initialPrescription)
   const [startTime] = useState(() => draft?.startTime ?? new Date().toISOString())
   const [now, setNow] = useState(() => Date.now())
@@ -108,8 +109,11 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
     next[exerciseIdx][setIdx] = result
     setExercises(next)
 
+    unlockAudio()
+    if (tapFeedback.sound) playTapSound(result === null ? 'reset' : result.completed ? 'complete' : 'fail')
+    if (tapFeedback.haptics) tapHaptic()
+
     if (result === null) return
-    unlockRestAlert()
     if (next.every(ex => ex.every(s => s !== null))) {
       setRestEndTime(null)
     } else {
