@@ -64,4 +64,16 @@ describe('useWakeLock', () => {
 
     expect(sentinels[0].release).toHaveBeenCalled()
   })
+
+  test('waits until enabled before requesting the lock', async () => {
+    const { rerender } = renderHook(({ enabled }) => useWakeLock(enabled), {
+      initialProps: { enabled: false },
+    })
+    await new Promise(r => setTimeout(r, 20))
+    expect(request).not.toHaveBeenCalled()
+
+    rerender({ enabled: true })
+
+    await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+  })
 })

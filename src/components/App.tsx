@@ -13,9 +13,10 @@ import LiftDetail from './LiftDetail'
 
 export default function App() {
   const app = useAppState()
-  useWakeLock()
   const [activeTab, setActiveTab] = useState<TabId>('today')
   const [showSplash, setShowSplash] = useState(true)
+  // Held back until the splash finishes so the request doesn't compete with its animation
+  useWakeLock(!showSplash)
 
   const dismissSplash = useCallback(() => setShowSplash(false), [])
 

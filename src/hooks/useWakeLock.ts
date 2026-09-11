@@ -2,9 +2,9 @@ import { useEffect } from 'react'
 
 // The browser drops the lock whenever the app is hidden, so it is re-requested when the app
 // becomes visible again, and on taps in case the browser insists on a user gesture.
-export function useWakeLock() {
+export function useWakeLock(enabled = true) {
   useEffect(() => {
-    if (!('wakeLock' in navigator)) return
+    if (!enabled || !('wakeLock' in navigator)) return
 
     let sentinel: WakeLockSentinel | null = null
     let pending = false
@@ -44,5 +44,5 @@ export function useWakeLock() {
       document.removeEventListener('pointerdown', request)
       void sentinel?.release()
     }
-  }, [])
+  }, [enabled])
 }
