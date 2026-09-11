@@ -1,13 +1,14 @@
-import type { AppState } from '../model/types'
+import type { AppState, LiftId } from '../model/types'
 import { ALL_LIFTS, LIFT_DISPLAY_NAMES } from '../model/defaults'
 import { getPersonalRecord, getWorkoutStats } from '../model/programme'
 import { formatDate } from '../model/dates'
 
 interface PRSectionProps {
   state: AppState
+  onOpenLift: (liftId: LiftId) => void
 }
 
-export default function PRSection({ state }: PRSectionProps) {
+export default function PRSection({ state, onOpenLift }: PRSectionProps) {
   const stats = getWorkoutStats(state.workouts)
 
   return (
@@ -38,8 +39,13 @@ export default function PRSection({ state }: PRSectionProps) {
             const prDate = pr ? formatDate(pr.date) : '—'
 
             return (
-              <div key={liftId} className="px-4 py-3 flex items-center justify-between">
-                <div>
+              <button
+                key={liftId}
+                type="button"
+                onClick={() => onOpenLift(liftId)}
+                className="w-full text-left px-4 py-3 flex items-center justify-between gap-2 hover:bg-gray-800/50 active:bg-gray-800 transition-colors"
+              >
+                <div className="flex-1 min-w-0">
                   <div className="font-medium text-gray-100 text-sm">{LIFT_DISPLAY_NAMES[liftId]}</div>
                   <div className="text-xs text-gray-500">{prDate}</div>
                 </div>
@@ -51,7 +57,10 @@ export default function PRSection({ state }: PRSectionProps) {
                     Current: {lift.currentWeight} {state.units}
                   </div>
                 </div>
-              </div>
+                <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+                  <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
             )
           })}
         </div>

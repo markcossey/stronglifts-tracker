@@ -6,11 +6,12 @@ import PRSection from './PRSection'
 
 interface ProgressProps {
   state: AppState
+  onOpenLift: (liftId: LiftId) => void
 }
 
 type ChartRange = '10' | '30' | 'all'
 
-export default function Progress({ state }: ProgressProps) {
+export default function Progress({ state, onOpenLift }: ProgressProps) {
   const [selectedLift, setSelectedLift] = useState<LiftId>('squat')
   const [range, setRange] = useState<ChartRange>('30')
 
@@ -18,7 +19,7 @@ export default function Progress({ state }: ProgressProps) {
     <div className="p-4 max-w-lg mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-100">Progress</h1>
 
-      <PRSection state={state} />
+      <PRSection state={state} onOpenLift={onOpenLift} />
 
       <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-4">
         <div className="flex items-center justify-between">

@@ -66,7 +66,7 @@ export default function App() {
         />
       )}
       {activeTab === 'progress' && (
-        <Progress state={app.state} />
+        <Progress state={app.state} onOpenLift={openLiftDetail} />
       )}
       {activeTab === 'settings' && (
         <Settings
