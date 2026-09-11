@@ -123,7 +123,7 @@ export default function Setup({ onComplete }: SetupProps) {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-6 safe-area-pt">
       <div className="w-full max-w-sm">
         <div className="flex justify-center gap-2 mb-8">
           {[0, 1, 2, 3].map(i => (

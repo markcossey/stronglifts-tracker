@@ -24,7 +24,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 pb-20">
+    <div className="min-h-screen bg-gray-950 pb-20 safe-area-pt">
       {activeTab === 'today' && app.prescription && (
         <Today
           state={app.state}
