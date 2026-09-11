@@ -7,7 +7,8 @@ import type {
   Workout,
   WorkoutType,
 } from './types'
-import { ALL_LIFTS, getDefaultIncrements } from './defaults'
+import { ALL_LIFTS, createDefaultLiftState, getDefaultIncrements } from './defaults'
+import { isExerciseComplete, processLiftResult } from './programme'
 
 const EXERCISE_MAP: Record<string, LiftId> = {
   'squat': 'squat',
@@ -188,49 +189,25 @@ export function importStrongLiftsCSV(csv: string): AppState | { error: string } 
 
   if (workouts.length === 0) return { error: 'No valid workouts found in CSV' }
 
+  const increments = getDefaultIncrements('kg')
   const lifts = {} as Record<LiftId, LiftState>
   for (const liftId of ALL_LIFTS) {
-    let maxWeight = 0
-    let maxWeightDate = workouts[0].date
-    let lastWeight = 0
-
-    for (const w of workouts) {
-      for (const ex of w.exercises) {
-        if (ex.liftId === liftId) {
-          lastWeight = ex.prescribedWeight
-          if (ex.prescribedWeight > maxWeight) {
-            maxWeight = ex.prescribedWeight
-            maxWeightDate = w.date
-          }
-        }
-      }
+    const sessions = workouts.flatMap(w => w.exercises.filter(e => e.liftId === liftId))
+    const last = sessions[sessions.length - 1]
+    if (!last) {
+      lifts[liftId] = createDefaultLiftState(liftId === 'deadlift' ? 40 : 20)
+      continue
     }
 
-    if (lastWeight === 0) {
-      lastWeight = liftId === 'deadlift' ? 40 : 20
-      maxWeight = lastWeight
-      maxWeightDate = workouts[0].date
+    let priorFailures = 0
+    for (let i = sessions.length - 2; i >= 0; i--) {
+      const s = sessions[i]
+      if (s.prescribedWeight !== last.prescribedWeight || isExerciseComplete(s)) break
+      priorFailures++
     }
 
-    let recentFailures = 0
-    for (let i = workouts.length - 1; i >= 0; i--) {
-      const ex = workouts[i].exercises.find(e => e.liftId === liftId)
-      if (!ex) continue
-      const allComplete = ex.sets.every(s => s.completed)
-      if (allComplete) break
-      recentFailures++
-      if (recentFailures >= 3) break
-    }
-
-    lifts[liftId] = {
-      currentWeight: lastWeight,
-      failureCount: recentFailures,
-      deloadCount: 0,
-      status: recentFailures >= 2 ? 'stalled' : recentFailures >= 1 ? 'failed' : 'progressing',
-      personalRecord: maxWeight,
-      personalRecordDate: maxWeightDate,
-      repScheme: '5x5',
-    }
+    const beforeLast = { ...createDefaultLiftState(last.prescribedWeight), failureCount: priorFailures }
+    lifts[liftId] = processLiftResult(beforeLast, last, increments[liftId], liftId)
   }
 
   const lastWorkout = workouts[workouts.length - 1]
@@ -242,7 +219,7 @@ export function importStrongLiftsCSV(csv: string): AppState | { error: string } 
     setupComplete: true,
     nextWorkoutType,
     lifts,
-    increments: getDefaultIncrements('kg'),
+    increments,
     workouts,
   }
 }

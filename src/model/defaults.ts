@@ -58,14 +58,12 @@ export const REP_SCHEME_CONFIG: Record<RepScheme, { sets: number; reps: number }
 
 export const DEADLIFT_DEFAULT_SCHEME: RepScheme = '1x5'
 
-export function createDefaultLiftState(weight: number, date: string): LiftState {
+export function createDefaultLiftState(weight: number): LiftState {
   return {
     currentWeight: weight,
     failureCount: 0,
     deloadCount: 0,
     status: 'progressing',
-    personalRecord: weight,
-    personalRecordDate: date,
     repScheme: '5x5',
   }
 }

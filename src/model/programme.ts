@@ -70,33 +70,30 @@ export function getWorkoutPrescription(state: AppState): PrescribedWorkout {
   }
 }
 
-function processLiftResult(
+export function processLiftResult(
   liftState: LiftState,
   exercise: ExerciseResult,
   increment: number,
   liftId: LiftId,
-  date: string,
 ): LiftState {
-  const completed = isExerciseComplete(exercise)
+  // prescribedWeight holds the weight actually lifted, including any in-workout adjustment
+  const liftedWeight = exercise.prescribedWeight
 
-  if (completed) {
-    const newWeight = liftState.currentWeight + increment
-    const isNewPR = newWeight > liftState.personalRecord
+  if (isExerciseComplete(exercise)) {
     return {
       ...liftState,
-      currentWeight: newWeight,
+      currentWeight: liftedWeight + increment,
       failureCount: 0,
       status: 'progressing',
-      personalRecord: isNewPR ? newWeight : liftState.personalRecord,
-      personalRecordDate: isNewPR ? date : liftState.personalRecordDate,
     }
   }
 
-  const newFailureCount = liftState.failureCount + 1
+  const priorFailures = liftedWeight === liftState.currentWeight ? liftState.failureCount : 0
+  const newFailureCount = priorFailures + 1
 
   if (newFailureCount >= MAX_FAILURES_BEFORE_DELOAD) {
     const newDeloadCount = liftState.deloadCount + 1
-    const deloadedWeight = calculateDeloadWeight(liftState.currentWeight, increment)
+    const deloadedWeight = calculateDeloadWeight(liftedWeight, increment)
 
     if (newDeloadCount >= MAX_DELOADS_BEFORE_SCHEME_CHANGE) {
       const currentScheme = getRepSchemeForLift(liftId, liftState)
@@ -122,6 +119,7 @@ function processLiftResult(
 
   return {
     ...liftState,
+    currentWeight: liftedWeight,
     failureCount: newFailureCount,
     status: newFailureCount >= 2 ? 'stalled' : 'failed',
   }
@@ -137,14 +135,13 @@ export function processWorkoutResult(state: AppState, workout: Workout): AppStat
       exercise,
       state.increments[liftId],
       liftId,
-      workout.date,
     )
   }
 
   return {
     ...state,
     lifts: newLifts,
-    nextWorkoutType: state.nextWorkoutType === 'A' ? 'B' : 'A',
+    nextWorkoutType: workout.type === 'A' ? 'B' : 'A',
     workouts: [...state.workouts, workout],
   }
 }
@@ -179,11 +176,10 @@ export function convertWeight(weight: number, from: Units, to: Units): number {
 export function createAppState(
   units: Units,
   startingWeights: Record<LiftId, number>,
-  date: string,
 ): AppState {
   const lifts = {} as Record<LiftId, LiftState>
   for (const liftId of ALL_LIFTS) {
-    lifts[liftId] = createDefaultLiftState(startingWeights[liftId], date)
+    lifts[liftId] = createDefaultLiftState(startingWeights[liftId])
   }
 
   return {
@@ -250,6 +246,19 @@ export function getLiftHistory(workouts: Workout[], liftId: LiftId) {
         sets: exercise.sets,
       }
     })
+}
+
+export function getPersonalRecord(
+  workouts: Workout[],
+  liftId: LiftId,
+): { weight: number; date: string } | null {
+  let best: { weight: number; date: string } | null = null
+  for (const h of getLiftHistory(workouts, liftId)) {
+    if (h.completed && (!best || h.weight > best.weight)) {
+      best = { weight: h.weight, date: h.date }
+    }
+  }
+  return best
 }
 
 export interface PlateResult {

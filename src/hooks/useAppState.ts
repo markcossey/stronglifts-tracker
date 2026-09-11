@@ -10,6 +10,7 @@ import {
   deleteWorkoutFromHistory,
 } from '../model/programme'
 import { importStrongLiftsCSV } from '../model/importCSV'
+import { clearDraft } from '../model/workoutDraft'
 
 const STORAGE_KEY = 'stronglifts-app-state'
 
@@ -63,12 +64,12 @@ export function useAppState() {
   }, [])
 
   const initializeApp = useCallback((units: Units, startingWeights: Record<LiftId, number>) => {
-    const newState = createAppState(units, startingWeights, new Date().toISOString().split('T')[0])
-    setState(newState)
+    setState(createAppState(units, startingWeights))
   }, [])
 
   const resetApp = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY)
+    clearDraft()
     setState(null)
   }, [])
 

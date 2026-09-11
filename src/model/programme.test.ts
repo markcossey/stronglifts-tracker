@@ -7,6 +7,7 @@ import {
   degradeRepScheme,
   exportData,
   getLiftsForWorkout,
+  getPersonalRecord,
   getWorkoutPrescription,
   importData,
   isExerciseComplete,
@@ -86,7 +87,7 @@ function createTestState(overrides?: Partial<{
   deadlift: number
 }>): AppState {
   const weights = { ...DEFAULT_STARTING_WEIGHTS_KG, ...overrides }
-  return createAppState('kg', weights, '2024-01-01')
+  return createAppState('kg', weights)
 }
 
 describe('StrongLifts Programme State Machine', () => {
@@ -285,7 +286,7 @@ describe('StrongLifts Programme State Machine', () => {
       ohp: 45,
       deadlift: 120,
     }
-    const state = createAppState('kg', customWeights, '2024-06-01')
+    const state = createAppState('kg', customWeights)
 
     const prescription = getWorkoutPrescription(state)
     expect(prescription.exercises[0].weight).toBe(100) // squat
@@ -387,11 +388,10 @@ describe('StrongLifts Programme State Machine', () => {
     expect(roundToIncrement(22, 2.5)).toBe(20)
   })
 
-  test('Personal record is updated only on new highs', () => {
+  test('Personal record is the heaviest completed weight, not the next prescribed weight', () => {
     const state = createTestState({ squat: 100 })
-    expect(state.lifts.squat.personalRecord).toBe(100)
+    expect(getPersonalRecord(state.workouts, 'squat')).toBeNull()
 
-    // Complete a workout - weight goes to 102.5 which is new PR
     const workout = makeWorkout(state, [
       makeSuccessfulExercise('squat', 100),
       makeSuccessfulExercise('bench', 20),
@@ -399,38 +399,74 @@ describe('StrongLifts Programme State Machine', () => {
     ])
     const newState = processWorkoutResult(state, workout)
 
-    expect(newState.lifts.squat.personalRecord).toBe(102.5)
-    expect(newState.lifts.squat.personalRecordDate).toBe('2024-01-01')
+    expect(newState.lifts.squat.currentWeight).toBe(102.5)
+    expect(getPersonalRecord(newState.workouts, 'squat')).toEqual({ weight: 100, date: workout.date })
   })
 
-  test('Personal record is NOT updated during deload recovery', () => {
+  test('Failed attempts and deload recovery do not change the personal record', () => {
     let state = createTestState({ squat: 100 })
+    state = processWorkoutResult(state, makeWorkout(state, [
+      makeSuccessfulExercise('squat', 100),
+      makeSuccessfulExercise('bench', 20),
+      makeSuccessfulExercise('row', 30),
+    ], 0))
 
-    // Fail 3 times to trigger deload
-    for (let i = 0; i < 3; i++) {
-      const workout = makeWorkout(state, [
+    for (let i = 1; i <= 3; i++) {
+      state = processWorkoutResult(state, makeWorkout(state, [
         makeFailedExercise('squat', state.lifts.squat.currentWeight, 4, 3),
-        makeSuccessfulExercise('bench', state.lifts.bench.currentWeight),
-        makeSuccessfulExercise('row', state.lifts.row.currentWeight),
-      ], i)
-      state = processWorkoutResult(state, workout)
+      ], i))
     }
+    expect(state.lifts.squat.status).toBe('deloading')
 
-    // Deloaded weight should be less than PR
-    expect(state.lifts.squat.currentWeight).toBeLessThan(100)
-    expect(state.lifts.squat.personalRecord).toBe(100)
+    state = processWorkoutResult(state, makeWorkout(state, [
+      makeSuccessfulExercise('squat', state.lifts.squat.currentWeight),
+    ], 4))
 
-    // Complete at deloaded weight
-    const deloadedWeight = state.lifts.squat.currentWeight
-    const workout = makeWorkout(state, [
-      makeSuccessfulExercise('squat', deloadedWeight),
-      makeSuccessfulExercise('bench', state.lifts.bench.currentWeight),
-      makeSuccessfulExercise('row', state.lifts.row.currentWeight),
-    ], 3)
-    state = processWorkoutResult(state, workout)
+    expect(getPersonalRecord(state.workouts, 'squat')?.weight).toBe(100)
+  })
 
-    // PR should still be 100
-    expect(state.lifts.squat.personalRecord).toBe(100)
+  test('Next workout alternates from the workout actually performed', () => {
+    const state = createTestState()
+    expect(state.nextWorkoutType).toBe('A')
+
+    const workoutB: Workout = {
+      ...makeWorkout(state, [
+        makeSuccessfulExercise('squat', 20),
+        makeSuccessfulExercise('ohp', 20),
+        makeSuccessfulExercise('deadlift', 40, 1, 5),
+      ]),
+      type: 'B',
+    }
+    const newState = processWorkoutResult(state, workoutB)
+
+    expect(newState.nextWorkoutType).toBe('A')
+  })
+
+  test('Progression uses the weight actually lifted when adjusted mid-workout', () => {
+    const state = createTestState({ squat: 60 })
+    const newState = processWorkoutResult(state, makeWorkout(state, [
+      makeSuccessfulExercise('squat', 65),
+    ]))
+
+    expect(newState.lifts.squat.currentWeight).toBe(67.5)
+  })
+
+  test('Failing at a different weight starts a new failure count at that weight', () => {
+    let state = createTestState({ squat: 80 })
+    for (let i = 0; i < 2; i++) {
+      state = processWorkoutResult(state, makeWorkout(state, [
+        makeFailedExercise('squat', 80, 4, 2),
+      ], i))
+    }
+    expect(state.lifts.squat.failureCount).toBe(2)
+
+    state = processWorkoutResult(state, makeWorkout(state, [
+      makeFailedExercise('squat', 75, 4, 2),
+    ], 2))
+
+    expect(state.lifts.squat.currentWeight).toBe(75)
+    expect(state.lifts.squat.failureCount).toBe(1)
+    expect(state.lifts.squat.status).toBe('failed')
   })
 
   test('isExerciseComplete returns correct results', () => {

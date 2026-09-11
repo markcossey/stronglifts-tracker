@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { AppState, PrescribedWorkout, Workout, WorkoutType } from '../model/types'
 import { LIFT_DISPLAY_NAMES } from '../model/defaults'
 import { getWorkoutPrescription } from '../model/programme'
+import { loadDraft } from '../model/workoutDraft'
 import Button from '../ui/Button'
 import Dashboard from './Dashboard'
 import WorkoutEntry from './WorkoutEntry'
@@ -24,7 +25,8 @@ function getPrescriptionForType(state: AppState, type: WorkoutType): PrescribedW
 }
 
 export default function Today({ state, prescription, onCompleteWorkout }: TodayProps) {
-  const [view, setView] = useState<ViewState>({ mode: 'overview' })
+  const [draft, setDraft] = useState(loadDraft)
+  const [view, setView] = useState<ViewState>(draft ? { mode: 'workout' } : { mode: 'overview' })
   const [typeOverride, setTypeOverride] = useState<WorkoutType | null>(null)
 
   const recommendedType = state.nextWorkoutType
@@ -35,6 +37,7 @@ export default function Today({ state, prescription, onCompleteWorkout }: TodayP
 
   function handleWorkoutComplete(workout: Workout) {
     onCompleteWorkout(workout)
+    setDraft(null)
     setTypeOverride(null)
     setView({ mode: 'summary', workout })
   }
@@ -44,11 +47,15 @@ export default function Today({ state, prescription, onCompleteWorkout }: TodayP
       <div className="p-4 max-w-lg mx-auto">
         <WorkoutEntry
           prescription={activePrescription}
+          draft={draft}
           units={state.units}
           increments={state.increments}
           workouts={state.workouts}
           onComplete={handleWorkoutComplete}
-          onCancel={() => setView({ mode: 'overview' })}
+          onCancel={() => {
+            setDraft(null)
+            setView({ mode: 'overview' })
+          }}
         />
       </div>
     )

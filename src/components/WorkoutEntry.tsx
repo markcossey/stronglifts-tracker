@@ -5,11 +5,13 @@ import SetButton from '../ui/SetButton'
 import Button from '../ui/Button'
 import PlateDisplay from '../ui/PlateDisplay'
 import Sparkline from '../ui/Sparkline'
+import { clearDraft, saveDraft, type WorkoutDraft } from '../model/workoutDraft'
 
 const REST_DURATION = 180
 
 interface WorkoutEntryProps {
   prescription: PrescribedWorkout
+  draft: WorkoutDraft | null
   units: string
   increments: Record<LiftId, number>
   workouts: Workout[]
@@ -17,28 +19,38 @@ interface WorkoutEntryProps {
   onCancel: () => void
 }
 
-export default function WorkoutEntry({ prescription, units, increments, workouts, onComplete, onCancel }: WorkoutEntryProps) {
-  const [startTime] = useState(() => new Date().toISOString())
-  const [elapsed, setElapsed] = useState(0)
+export default function WorkoutEntry({ prescription: initialPrescription, draft, units, increments, workouts, onComplete, onCancel }: WorkoutEntryProps) {
+  const [prescription] = useState(() => draft?.prescription ?? initialPrescription)
+  const [startTime] = useState(() => draft?.startTime ?? new Date().toISOString())
+  const [elapsed, setElapsed] = useState(() => Math.floor((Date.now() - new Date(startTime).getTime()) / 1000))
   const [exercises, setExercises] = useState<(SetResult | null)[][]>(() =>
-    prescription.exercises.map(ex =>
+    draft?.sets ?? prescription.exercises.map(ex =>
       Array.from({ length: ex.sets }, () => null),
     ),
   )
-  const [notes, setNotes] = useState<(string | undefined)[]>(
-    () => prescription.exercises.map(() => undefined),
+  const [notes, setNotes] = useState<string[]>(
+    () => draft?.notes ?? prescription.exercises.map(() => ''),
   )
-  const [workoutNotes, setWorkoutNotes] = useState('')
-  const [restEndTime, setRestEndTime] = useState<number | null>(null)
+  const [workoutNotes, setWorkoutNotes] = useState(draft?.workoutNotes ?? '')
+  const [restEndTime, setRestEndTime] = useState<number | null>(draft?.restEndTime ?? null)
   const [restRemaining, setRestRemaining] = useState(0)
   const [showPlates, setShowPlates] = useState<LiftId | null>(null)
-  const [weightOverrides, setWeightOverrides] = useState<Record<number, number>>(() => {
-    const overrides: Record<number, number> = {}
-    prescription.exercises.forEach((ex, i) => {
-      overrides[i] = ex.weight
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false)
+  const [weightOverrides, setWeightOverrides] = useState<number[]>(
+    () => draft?.weights ?? prescription.exercises.map(ex => ex.weight),
+  )
+
+  useEffect(() => {
+    saveDraft({
+      prescription,
+      startTime,
+      sets: exercises,
+      notes,
+      workoutNotes,
+      weights: weightOverrides,
+      restEndTime,
     })
-    return overrides
-  })
+  }, [prescription, startTime, exercises, notes, workoutNotes, weightOverrides, restEndTime])
 
   const startRestTimer = useCallback(() => {
     setRestEndTime(Date.now() + REST_DURATION * 1000)
@@ -66,11 +78,26 @@ export default function WorkoutEntry({ prescription, units, increments, workouts
     const liftId = prescription.exercises[exIdx].liftId
     const increment = increments[liftId]
     setWeightOverrides(prev => {
-      const current = prev[exIdx]
-      const next = current + direction * increment
+      const next = prev[exIdx] + direction * increment
       if (next < 0) return prev
-      return { ...prev, [exIdx]: next }
+      return prev.map((w, i) => (i === exIdx ? next : w))
     })
+  }
+
+  function handleCancel() {
+    const hasProgress = exercises.some(ex => ex.some(s => s !== null))
+      || notes.some(Boolean)
+      || workoutNotes !== ''
+    if (hasProgress) {
+      setShowDiscardConfirm(true)
+    } else {
+      discardWorkout()
+    }
+  }
+
+  function discardWorkout() {
+    clearDraft()
+    onCancel()
   }
 
   function updateSet(exerciseIdx: number, setIdx: number, result: SetResult | null) {
@@ -102,7 +129,7 @@ export default function WorkoutEntry({ prescription, units, increments, workouts
       liftId: ex.liftId,
       prescribedWeight: weightOverrides[i],
       sets: exercises[i].map(s => s!),
-      notes: notes[i],
+      notes: notes[i] || undefined,
     }))
 
     const workout: Workout = {
@@ -116,13 +143,14 @@ export default function WorkoutEntry({ prescription, units, increments, workouts
       endTime,
     }
 
+    clearDraft()
     onComplete(workout)
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-200 p-2 -ml-2">
+        <button type="button" onClick={handleCancel} aria-label="Discard workout" className="text-gray-400 hover:text-gray-200 p-2 -ml-2">
           <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2}>
             <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -243,14 +271,10 @@ export default function WorkoutEntry({ prescription, units, increments, workouts
             <input
               type="text"
               placeholder="Add a note..."
-              value={notes[exIdx] ?? ''}
+              value={notes[exIdx]}
               onChange={e => {
                 const val = e.target.value
-                setNotes(prev => {
-                  const next = [...prev]
-                  next[exIdx] = val || undefined
-                  return next
-                })
+                setNotes(prev => prev.map((n, i) => (i === exIdx ? val : n)))
               }}
               className="w-full text-sm px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-600 focus:border-[#47c23f] focus:ring-1 focus:ring-[#47c23f] outline-none"
             />
@@ -274,6 +298,19 @@ export default function WorkoutEntry({ prescription, units, increments, workouts
       >
         Finish Workout
       </Button>
+
+      {showDiscardConfirm && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-900 rounded-2xl p-6 max-w-sm w-full space-y-4 border border-gray-800">
+            <h3 className="text-lg font-bold text-gray-100">Discard workout?</h3>
+            <p className="text-gray-400">The sets you've logged in this workout will be lost.</p>
+            <div className="flex gap-3">
+              <Button variant="ghost" fullWidth onClick={() => setShowDiscardConfirm(false)}>Keep going</Button>
+              <Button variant="danger" fullWidth onClick={discardWorkout}>Discard</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -9,8 +9,6 @@ export interface LiftState {
   failureCount: number
   deloadCount: number
   status: LiftStatus
-  personalRecord: number
-  personalRecordDate: string
   repScheme: RepScheme
 }
 

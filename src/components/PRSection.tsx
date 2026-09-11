@@ -1,6 +1,6 @@
 import type { AppState } from '../model/types'
 import { ALL_LIFTS, LIFT_DISPLAY_NAMES } from '../model/defaults'
-import { getWorkoutStats } from '../model/programme'
+import { getPersonalRecord, getWorkoutStats } from '../model/programme'
 
 interface PRSectionProps {
   state: AppState
@@ -33,8 +33,9 @@ export default function PRSection({ state }: PRSectionProps) {
         <div className="divide-y divide-gray-800">
           {ALL_LIFTS.map(liftId => {
             const lift = state.lifts[liftId]
-            const prDate = lift.personalRecordDate
-              ? new Date(lift.personalRecordDate + 'T00:00:00').toLocaleDateString(undefined, {
+            const pr = getPersonalRecord(state.workouts, liftId)
+            const prDate = pr
+              ? new Date(pr.date + 'T00:00:00').toLocaleDateString(undefined, {
                   month: 'short',
                   day: 'numeric',
                 })
@@ -48,7 +49,7 @@ export default function PRSection({ state }: PRSectionProps) {
                 </div>
                 <div className="text-right">
                   <div className="font-mono font-bold text-gray-100">
-                    {lift.personalRecord} {state.units}
+                    {pr ? `${pr.weight} ${state.units}` : '—'}
                   </div>
                   <div className="text-xs text-gray-500">
                     Current: {lift.currentWeight} {state.units}
