@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useLayoutEffect, useRef } from 'react'
+import type { LiftId } from '../model/types'
 import { useAppState } from '../hooks/useAppState'
 import { useWakeLock } from '../hooks/useWakeLock'
 import NavBar, { type TabId } from '../ui/NavBar'
@@ -8,6 +9,7 @@ import Today from './Today'
 import History from './History'
 import Progress from './Progress'
 import Settings from './Settings'
+import LiftDetail from './LiftDetail'
 
 export default function App() {
   const app = useAppState()
@@ -16,6 +18,26 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true)
 
   const dismissSplash = useCallback(() => setShowSplash(false), [])
+
+  // The lift page is shown over the current tab, which stays mounted (hidden) so an
+  // in-progress workout and its rest timer carry on underneath.
+  const [openLift, setOpenLift] = useState<LiftId | null>(null)
+  const savedScroll = useRef(0)
+
+  const openLiftDetail = useCallback((liftId: LiftId) => {
+    savedScroll.current = window.scrollY
+    setOpenLift(liftId)
+  }, [])
+
+  useLayoutEffect(() => {
+    window.scrollTo(0, openLift ? 0 : savedScroll.current)
+  }, [openLift])
+
+  function changeTab(tab: TabId) {
+    savedScroll.current = 0
+    setOpenLift(null)
+    setActiveTab(tab)
+  }
 
   if (showSplash) {
     return <SplashScreen onDone={dismissSplash} />
@@ -27,11 +49,13 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-950 pb-20 safe-area-pt">
+      <div hidden={openLift !== null}>
       {activeTab === 'today' && app.prescription && (
         <Today
           state={app.state}
           prescription={app.prescription}
           onCompleteWorkout={app.completeWorkout}
+          onOpenLift={openLiftDetail}
         />
       )}
       {activeTab === 'history' && (
@@ -55,7 +79,11 @@ export default function App() {
           onReset={app.resetApp}
         />
       )}
-      <NavBar activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
+      {openLift && (
+        <LiftDetail liftId={openLift} state={app.state} onBack={() => setOpenLift(null)} />
+      )}
+      <NavBar activeTab={activeTab} onTabChange={changeTab} />
     </div>
   )
 }

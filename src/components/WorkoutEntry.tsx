@@ -18,6 +18,7 @@ interface WorkoutEntryProps {
   units: string
   increments: Record<LiftId, number>
   tapFeedback: TapFeedback
+  onOpenLift: (liftId: LiftId) => void
   workouts: Workout[]
   onComplete: (workout: Workout) => void
   onCancel: () => void
@@ -29,7 +30,7 @@ function formatTime(seconds: number): string {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
-export default function WorkoutEntry({ prescription: initialPrescription, draft, units, increments, tapFeedback, workouts, onComplete, onCancel }: WorkoutEntryProps) {
+export default function WorkoutEntry({ prescription: initialPrescription, draft, units, increments, tapFeedback, onOpenLift, workouts, onComplete, onCancel }: WorkoutEntryProps) {
   const [prescription] = useState(() => draft?.prescription ?? initialPrescription)
   const [startTime] = useState(() => draft?.startTime ?? new Date().toISOString())
   const [now, setNow] = useState(() => Date.now())
@@ -176,7 +177,18 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
         return (
           <div key={ex.liftId} className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-100">{LIFT_DISPLAY_NAMES[ex.liftId]}</h3>
+              <h3>
+                <button
+                  type="button"
+                  onClick={() => onOpenLift(ex.liftId)}
+                  className="flex items-center gap-1 text-lg font-bold text-gray-100 hover:text-white active:text-[#47c23f] transition-colors"
+                >
+                  {LIFT_DISPLAY_NAMES[ex.liftId]}
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+                    <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </h3>
               <Sparkline liftId={ex.liftId} workouts={workouts} />
             </div>
 

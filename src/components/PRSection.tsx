@@ -1,6 +1,7 @@
 import type { AppState } from '../model/types'
 import { ALL_LIFTS, LIFT_DISPLAY_NAMES } from '../model/defaults'
 import { getPersonalRecord, getWorkoutStats } from '../model/programme'
+import { formatDate } from '../model/dates'
 
 interface PRSectionProps {
   state: AppState
@@ -34,12 +35,7 @@ export default function PRSection({ state }: PRSectionProps) {
           {ALL_LIFTS.map(liftId => {
             const lift = state.lifts[liftId]
             const pr = getPersonalRecord(state.workouts, liftId)
-            const prDate = pr
-              ? new Date(pr.date + 'T00:00:00').toLocaleDateString(undefined, {
-                  month: 'short',
-                  day: 'numeric',
-                })
-              : '—'
+            const prDate = pr ? formatDate(pr.date) : '—'
 
             return (
               <div key={liftId} className="px-4 py-3 flex items-center justify-between">

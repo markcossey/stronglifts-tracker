@@ -9,7 +9,9 @@ import {
   createAppState,
   degradeRepScheme,
   deleteWorkoutFromHistory,
+  estimateOneRepMax,
   exportData,
+  getLiftRecords,
   getLiftsForWorkout,
   getPersonalRecord,
   getWorkoutPrescription,
@@ -581,5 +583,37 @@ describe('StrongLifts Programme State Machine', () => {
   test('localDateString uses the local calendar date', () => {
     expect(localDateString(new Date(2026, 0, 5, 0, 30))).toBe('2026-01-05')
     expect(localDateString(new Date(2026, 11, 31, 23, 59))).toBe('2026-12-31')
+  })
+
+  test('estimateOneRepMax uses the Epley formula and ignores empty sets', () => {
+    expect(estimateOneRepMax(100, 5)).toBeCloseTo(116.67, 2)
+    expect(estimateOneRepMax(100, 1)).toBe(100)
+    expect(estimateOneRepMax(100, 0)).toBe(0)
+  })
+
+  test('getLiftRecords finds the heaviest completed session, best estimated 1RM and best volume', () => {
+    let state = createTestState({ squat: 100 })
+    const first = makeWorkout(state, [makeSuccessfulExercise('squat', 100)], 0)
+    state = processWorkoutResult(state, first)
+    const second = makeWorkout(state, [makeFailedExercise('squat', 105, 3, 4)], 1)
+    state = processWorkoutResult(state, second)
+
+    const records = getLiftRecords(state.workouts, 'squat')
+
+    expect(records.heaviest).toEqual({ value: 100, date: first.date })
+    expect(records.bestE1RM?.value).toBeCloseTo(122.5, 1)
+    expect(records.bestE1RM?.date).toBe(second.date)
+    expect(records.bestVolume).toEqual({ value: 2500, date: first.date })
+    expect(records).toMatchObject({ sessions: 2, completedSessions: 1 })
+  })
+
+  test('getLiftRecords is empty for a lift with no sessions', () => {
+    expect(getLiftRecords([], 'ohp')).toEqual({
+      heaviest: null,
+      bestE1RM: null,
+      bestVolume: null,
+      sessions: 0,
+      completedSessions: 0,
+    })
   })
 })

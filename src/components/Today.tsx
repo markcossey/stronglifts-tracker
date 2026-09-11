@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { AppState, PrescribedWorkout, Workout, WorkoutType } from '../model/types'
+import type { AppState, LiftId, PrescribedWorkout, Workout, WorkoutType } from '../model/types'
 import { DEFAULT_TAP_FEEDBACK, LIFT_DISPLAY_NAMES } from '../model/defaults'
 import { getWorkoutPrescription } from '../model/programme'
 import { loadDraft } from '../model/workoutDraft'
@@ -13,6 +13,7 @@ interface TodayProps {
   state: AppState
   prescription: PrescribedWorkout
   onCompleteWorkout: (workout: Workout) => void
+  onOpenLift: (liftId: LiftId) => void
 }
 
 type ViewState =
@@ -25,7 +26,7 @@ function getPrescriptionForType(state: AppState, type: WorkoutType): PrescribedW
   return getWorkoutPrescription(overridden)
 }
 
-export default function Today({ state, prescription, onCompleteWorkout }: TodayProps) {
+export default function Today({ state, prescription, onCompleteWorkout, onOpenLift }: TodayProps) {
   const [draft, setDraft] = useState(loadDraft)
   const [view, setView] = useState<ViewState>(draft ? { mode: 'workout' } : { mode: 'overview' })
   const [typeOverride, setTypeOverride] = useState<WorkoutType | null>(null)
@@ -52,6 +53,7 @@ export default function Today({ state, prescription, onCompleteWorkout }: TodayP
           units={state.units}
           increments={state.increments}
           tapFeedback={state.tapFeedback ?? DEFAULT_TAP_FEEDBACK}
+          onOpenLift={onOpenLift}
           workouts={state.workouts}
           onComplete={handleWorkoutComplete}
           onCancel={() => {
@@ -141,7 +143,7 @@ export default function Today({ state, prescription, onCompleteWorkout }: TodayP
         </Button>
       </div>
 
-      <Dashboard state={state} />
+      <Dashboard state={state} onOpenLift={onOpenLift} />
     </div>
   )
 }

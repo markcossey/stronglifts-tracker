@@ -266,16 +266,25 @@ export function getWorkoutStats(workouts: Workout[]) {
   return { successful, failed: workouts.length - successful, total: workouts.length }
 }
 
+// Epley formula
+export function estimateOneRepMax(weight: number, reps: number): number {
+  if (reps <= 0) return 0
+  return reps === 1 ? weight : weight * (1 + reps / 30)
+}
+
 export function getLiftHistory(workouts: Workout[], liftId: LiftId) {
   return workouts
     .filter(w => w.exercises.some(e => e.liftId === liftId))
     .map(w => {
       const exercise = w.exercises.find(e => e.liftId === liftId)!
+      const weight = exercise.prescribedWeight
       return {
         date: w.date,
-        weight: exercise.prescribedWeight,
+        weight,
         completed: isExerciseComplete(exercise),
         sets: exercise.sets,
+        e1rm: Math.max(0, ...exercise.sets.map(s => estimateOneRepMax(weight, s.reps))),
+        volume: exercise.sets.reduce((sum, s) => sum + s.reps * weight, 0),
       }
     })
 }
@@ -291,6 +300,31 @@ export function getPersonalRecord(
     }
   }
   return best
+}
+
+export interface LiftRecord {
+  value: number
+  date: string
+}
+
+export function getLiftRecords(workouts: Workout[], liftId: LiftId) {
+  const history = getLiftHistory(workouts, liftId)
+  const heaviestSession = getPersonalRecord(workouts, liftId)
+  let bestE1RM: LiftRecord | null = null
+  let bestVolume: LiftRecord | null = null
+
+  for (const h of history) {
+    if (h.e1rm > 0 && (!bestE1RM || h.e1rm > bestE1RM.value)) bestE1RM = { value: h.e1rm, date: h.date }
+    if (h.volume > 0 && (!bestVolume || h.volume > bestVolume.value)) bestVolume = { value: h.volume, date: h.date }
+  }
+
+  return {
+    heaviest: heaviestSession ? { value: heaviestSession.weight, date: heaviestSession.date } : null,
+    bestE1RM,
+    bestVolume,
+    sessions: history.length,
+    completedSessions: history.filter(h => h.completed).length,
+  }
 }
 
 export interface PlateResult {
