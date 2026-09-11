@@ -1,0 +1,305 @@
+import type {
+  AppState,
+  ExerciseResult,
+  LiftId,
+  LiftState,
+  PrescribedWorkout,
+  RepScheme,
+  Units,
+  Workout,
+  WorkoutType,
+} from './types'
+import {
+  ALL_LIFTS,
+  DEADLIFT_DEFAULT_SCHEME,
+  DELOAD_PERCENTAGE,
+  MAX_DELOADS_BEFORE_SCHEME_CHANGE,
+  MAX_FAILURES_BEFORE_DELOAD,
+  REP_SCHEME_CONFIG,
+  WORKOUT_A_LIFTS,
+  WORKOUT_B_LIFTS,
+  createDefaultLiftState,
+  getDefaultIncrements,
+} from './defaults'
+
+export function getLiftsForWorkout(type: WorkoutType): LiftId[] {
+  return type === 'A' ? WORKOUT_A_LIFTS : WORKOUT_B_LIFTS
+}
+
+export function getRepSchemeForLift(liftId: LiftId, liftState: LiftState): RepScheme {
+  if (liftId === 'deadlift') return DEADLIFT_DEFAULT_SCHEME
+  return liftState.repScheme
+}
+
+export function roundToIncrement(weight: number, increment: number): number {
+  return Math.floor(weight / increment) * increment
+}
+
+export function calculateDeloadWeight(currentWeight: number, increment: number): number {
+  const deloaded = currentWeight * (1 - DELOAD_PERCENTAGE)
+  return roundToIncrement(deloaded, increment)
+}
+
+export function degradeRepScheme(current: RepScheme): RepScheme {
+  const chain: RepScheme[] = ['5x5', '3x5', '3x3', '1x5']
+  const idx = chain.indexOf(current)
+  if (idx === -1 || idx === chain.length - 1) return current
+  return chain[idx + 1]
+}
+
+export function isExerciseComplete(exercise: ExerciseResult): boolean {
+  return exercise.sets.every(s => s.completed)
+}
+
+export function getWorkoutPrescription(state: AppState): PrescribedWorkout {
+  const lifts = getLiftsForWorkout(state.nextWorkoutType)
+  return {
+    type: state.nextWorkoutType,
+    exercises: lifts.map(liftId => {
+      const liftState = state.lifts[liftId]
+      const scheme = getRepSchemeForLift(liftId, liftState)
+      const config = REP_SCHEME_CONFIG[scheme]
+      return {
+        liftId,
+        weight: liftState.currentWeight,
+        sets: config.sets,
+        reps: config.reps,
+        repScheme: scheme,
+      }
+    }),
+  }
+}
+
+function processLiftResult(
+  liftState: LiftState,
+  exercise: ExerciseResult,
+  increment: number,
+  liftId: LiftId,
+  date: string,
+): LiftState {
+  const completed = isExerciseComplete(exercise)
+
+  if (completed) {
+    const newWeight = liftState.currentWeight + increment
+    const isNewPR = newWeight > liftState.personalRecord
+    return {
+      ...liftState,
+      currentWeight: newWeight,
+      failureCount: 0,
+      status: 'progressing',
+      personalRecord: isNewPR ? newWeight : liftState.personalRecord,
+      personalRecordDate: isNewPR ? date : liftState.personalRecordDate,
+    }
+  }
+
+  const newFailureCount = liftState.failureCount + 1
+
+  if (newFailureCount >= MAX_FAILURES_BEFORE_DELOAD) {
+    const newDeloadCount = liftState.deloadCount + 1
+    const deloadedWeight = calculateDeloadWeight(liftState.currentWeight, increment)
+
+    if (newDeloadCount >= MAX_DELOADS_BEFORE_SCHEME_CHANGE) {
+      const currentScheme = getRepSchemeForLift(liftId, liftState)
+      const newScheme = degradeRepScheme(currentScheme)
+      return {
+        ...liftState,
+        currentWeight: deloadedWeight,
+        failureCount: 0,
+        deloadCount: liftId === 'deadlift' ? newDeloadCount : 0,
+        status: 'deloading',
+        repScheme: liftId === 'deadlift' ? liftState.repScheme : newScheme,
+      }
+    }
+
+    return {
+      ...liftState,
+      currentWeight: deloadedWeight,
+      failureCount: 0,
+      deloadCount: newDeloadCount,
+      status: 'deloading',
+    }
+  }
+
+  return {
+    ...liftState,
+    failureCount: newFailureCount,
+    status: newFailureCount >= 2 ? 'stalled' : 'failed',
+  }
+}
+
+export function processWorkoutResult(state: AppState, workout: Workout): AppState {
+  const newLifts = { ...state.lifts }
+
+  for (const exercise of workout.exercises) {
+    const liftId = exercise.liftId
+    newLifts[liftId] = processLiftResult(
+      state.lifts[liftId],
+      exercise,
+      state.increments[liftId],
+      liftId,
+      workout.date,
+    )
+  }
+
+  return {
+    ...state,
+    lifts: newLifts,
+    nextWorkoutType: state.nextWorkoutType === 'A' ? 'B' : 'A',
+    workouts: [...state.workouts, workout],
+  }
+}
+
+export function updateWorkoutInHistory(
+  state: AppState,
+  workoutId: string,
+  updatedWorkout: Workout,
+): AppState {
+  return {
+    ...state,
+    workouts: state.workouts.map(w => (w.id === workoutId ? updatedWorkout : w)),
+  }
+}
+
+export function deleteWorkoutFromHistory(
+  state: AppState,
+  workoutId: string,
+): AppState {
+  return {
+    ...state,
+    workouts: state.workouts.filter(w => w.id !== workoutId),
+  }
+}
+
+export function convertWeight(weight: number, from: Units, to: Units): number {
+  if (from === to) return weight
+  if (from === 'kg' && to === 'lb') return Math.round(weight * 2.20462 * 10) / 10
+  return Math.round((weight / 2.20462) * 10) / 10
+}
+
+export function createAppState(
+  units: Units,
+  startingWeights: Record<LiftId, number>,
+  date: string,
+): AppState {
+  const lifts = {} as Record<LiftId, LiftState>
+  for (const liftId of ALL_LIFTS) {
+    lifts[liftId] = createDefaultLiftState(startingWeights[liftId], date)
+  }
+
+  return {
+    version: 1,
+    units,
+    setupComplete: true,
+    nextWorkoutType: 'A',
+    lifts,
+    increments: getDefaultIncrements(units),
+    workouts: [],
+  }
+}
+
+export function exportData(state: AppState): string {
+  return JSON.stringify(state, null, 2)
+}
+
+export function importData(json: string): AppState | { error: string } {
+  try {
+    const parsed = JSON.parse(json)
+    if (!parsed || typeof parsed !== 'object') {
+      return { error: 'Invalid data format' }
+    }
+    if (!parsed.version || !parsed.units || !parsed.lifts || !Array.isArray(parsed.workouts)) {
+      return { error: 'Missing required fields' }
+    }
+    for (const liftId of ALL_LIFTS) {
+      if (!parsed.lifts[liftId]) {
+        return { error: `Missing lift data for ${liftId}` }
+      }
+    }
+    return parsed as AppState
+  } catch {
+    return { error: 'Invalid JSON' }
+  }
+}
+
+export function getWorkoutStats(workouts: Workout[]) {
+  let successful = 0
+  let failed = 0
+  let resets = 0
+
+  for (const workout of workouts) {
+    const allComplete = workout.exercises.every(isExerciseComplete)
+    if (allComplete) {
+      successful++
+    } else {
+      failed++
+    }
+  }
+
+  return { successful, failed, resets, total: workouts.length }
+}
+
+export function getLiftHistory(workouts: Workout[], liftId: LiftId) {
+  return workouts
+    .filter(w => w.exercises.some(e => e.liftId === liftId))
+    .map(w => {
+      const exercise = w.exercises.find(e => e.liftId === liftId)!
+      return {
+        date: w.date,
+        weight: exercise.prescribedWeight,
+        completed: isExerciseComplete(exercise),
+        sets: exercise.sets,
+      }
+    })
+}
+
+export interface PlateResult {
+  perSide: { weight: number; count: number }[]
+  barWeight: number
+  totalWeight: number
+  isBarOnly: boolean
+}
+
+export function calculatePlates(
+  totalWeight: number,
+  units: Units,
+): PlateResult {
+  const barWeight = units === 'kg' ? 20 : 45
+  const availablePlates = units === 'kg'
+    ? [25, 20, 10, 5, 2.5, 1.25, 0.5]
+    : [45, 35, 25, 10, 5, 2.5]
+
+  if (totalWeight <= barWeight) {
+    return { perSide: [], barWeight, totalWeight, isBarOnly: true }
+  }
+
+  let remaining = (totalWeight - barWeight) / 2
+  const perSide: { weight: number; count: number }[] = []
+
+  for (const plate of availablePlates) {
+    if (remaining >= plate) {
+      const count = Math.floor(remaining / plate)
+      perSide.push({ weight: plate, count })
+      remaining -= count * plate
+    }
+  }
+
+  return { perSide, barWeight, totalWeight, isBarOnly: false }
+}
+
+export function exportCSV(state: AppState): string {
+  const rows: string[] = ['Date,Workout,Exercise,Weight,Sets,Reps Completed,Status,Notes']
+
+  for (const workout of state.workouts) {
+    for (const exercise of workout.exercises) {
+      const totalSets = exercise.sets.length
+      const completedReps = exercise.sets.map(s => s.reps).join('/')
+      const status = isExerciseComplete(exercise) ? 'Completed' : 'Failed'
+      const notes = (exercise.notes ?? workout.notes ?? '').replace(/,/g, ';')
+      rows.push(
+        `${workout.date},${workout.type},${exercise.liftId},${exercise.prescribedWeight} ${state.units},${totalSets},${completedReps},${status},${notes}`,
+      )
+    }
+  }
+
+  return rows.join('\n')
+}
