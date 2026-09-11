@@ -165,32 +165,6 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
         </div>
       </div>
 
-      {restRemaining !== null && (
-        <button
-          type="button"
-          onClick={() => setRestEndTime(null)}
-          className={`w-full bg-gray-900 rounded-xl border p-4 space-y-2 ${restOver ? 'border-amber-400' : 'border-gray-800'}`}
-        >
-          <div className="flex items-center justify-between">
-            <span className={`text-sm font-medium ${restOver ? 'text-amber-400' : 'text-gray-400'}`}>
-              {restOver ? 'Rest over — next set' : 'Rest Timer'}
-            </span>
-            <span className="text-xs text-gray-600">tap to dismiss</span>
-          </div>
-          <div className={`text-3xl font-mono font-bold text-center ${restOver ? 'text-amber-400' : 'text-[#47c23f]'}`}>
-            {restOver ? `+${formatTime(Math.abs(restRemaining))}` : formatTime(restRemaining)}
-          </div>
-          {!restOver && (
-            <div className="w-full bg-gray-800 rounded-full h-1.5">
-              <div
-                className="bg-[#47c23f] h-1.5 rounded-full transition-all duration-1000"
-                style={{ width: `${(restRemaining / REST_DURATION) * 100}%` }}
-              />
-            </div>
-          )}
-        </button>
-      )}
-
       {prescription.exercises.map((ex, exIdx) => {
         const currentWeight = weightOverrides[exIdx]
         const isOverridden = currentWeight !== ex.weight
@@ -304,6 +278,39 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
       >
         Finish Workout
       </Button>
+
+      {restRemaining !== null && (
+        <>
+          {/* Lets the Finish button scroll clear of the pinned rest bar */}
+          <div className="h-20" aria-hidden="true" />
+          <div className="fixed inset-x-0 above-nav z-30 px-4 pb-2 pointer-events-none">
+            <button
+              type="button"
+              aria-label="Dismiss rest timer"
+              onClick={() => setRestEndTime(null)}
+              className={`pointer-events-auto relative overflow-hidden max-w-lg mx-auto w-full flex items-center justify-between gap-3 bg-gray-900/95 backdrop-blur rounded-xl border px-4 py-2.5 shadow-lg shadow-black/50 ${
+                restOver ? 'border-amber-400' : 'border-gray-700'
+              }`}
+            >
+              <div className="text-left">
+                <div className={`text-sm font-medium ${restOver ? 'text-amber-400' : 'text-gray-300'}`}>
+                  {restOver ? 'Rest over — next set' : 'Rest'}
+                </div>
+                <div className="text-xs text-gray-600">tap to dismiss</div>
+              </div>
+              <div className={`text-2xl font-mono font-bold ${restOver ? 'text-amber-400' : 'text-[#47c23f]'}`}>
+                {restOver ? `+${formatTime(Math.abs(restRemaining))}` : formatTime(restRemaining)}
+              </div>
+              {!restOver && (
+                <div
+                  className="absolute left-0 bottom-0 h-1 bg-[#47c23f] transition-all duration-1000"
+                  style={{ width: `${(restRemaining / REST_DURATION) * 100}%` }}
+                />
+              )}
+            </button>
+          </div>
+        </>
+      )}
 
       {showDiscardConfirm && (
         <ConfirmDialog

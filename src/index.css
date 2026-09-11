@@ -20,6 +20,11 @@ body {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
+/* 61px = NavBar height (icon + label + padding + border), excluding its safe-area padding */
+.above-nav {
+  bottom: calc(61px + env(safe-area-inset-bottom, 0px));
+}
+
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
