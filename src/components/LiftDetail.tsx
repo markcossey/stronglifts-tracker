@@ -2,8 +2,10 @@ import { useState } from 'react'
 import type { AppState, LiftId } from '../model/types'
 import { LIFT_DISPLAY_NAMES, MAX_FAILURES_BEFORE_DELOAD } from '../model/defaults'
 import { getLiftRecords, getRepSchemeForLift, type LiftRecord } from '../model/programme'
+import { LIFT_TECHNIQUE } from '../model/technique'
 import { formatDate } from '../model/dates'
 import StatusBadge from '../ui/StatusBadge'
+import LiftAnimation from '../ui/LiftAnimation'
 import LiftChart, { type ChartMetric, type ChartRange } from './LiftChart'
 
 interface LiftDetailProps {
@@ -11,6 +13,13 @@ interface LiftDetailProps {
   state: AppState
   onBack: () => void
 }
+
+type Tab = 'progress' | 'technique'
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'progress', label: 'Progress' },
+  { id: 'technique', label: 'Technique' },
+]
 
 const METRICS: { id: ChartMetric; label: string }[] = [
   { id: 'weight', label: 'Weight' },
@@ -35,13 +44,33 @@ function RecordRow({ label, record, units }: { label: string; record: LiftRecord
   )
 }
 
+function CueList({ title, items, tone = 'default' }: { title: string; items: string[]; tone?: 'default' | 'warning' }) {
+  return (
+    <section className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-2">
+      <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">{title}</h2>
+      <ul className="space-y-2">
+        {items.map(item => (
+          <li key={item} className="flex gap-2 text-sm text-gray-300">
+            <span className={tone === 'warning' ? 'text-amber-400' : 'text-[#47c23f]'} aria-hidden="true">
+              {tone === 'warning' ? '!' : '•'}
+            </span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
 export default function LiftDetail({ liftId, state, onBack }: LiftDetailProps) {
+  const [tab, setTab] = useState<Tab>('progress')
   const [range, setRange] = useState<ChartRange>('30')
   const [metric, setMetric] = useState<ChartMetric>('weight')
 
   const lift = state.lifts[liftId]
   const units = state.units
   const records = getLiftRecords(state.workouts, liftId)
+  const technique = LIFT_TECHNIQUE[liftId]
   const scheme = getRepSchemeForLift(liftId, lift).replace('x', '×')
   const successRate = records.sessions > 0
     ? Math.round((records.completedSessions / records.sessions) * 100)
@@ -58,75 +87,107 @@ export default function LiftDetail({ liftId, state, onBack }: LiftDetailProps) {
         <h1 className="text-2xl font-bold text-gray-100">{LIFT_DISPLAY_NAMES[liftId]}</h1>
       </div>
 
-      <section className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-2">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Current Weight</h2>
-          <StatusBadge status={lift.status} failureCount={lift.failureCount} />
-        </div>
-        <div className="font-mono text-gray-50">
-          <span className="text-4xl font-bold">{lift.currentWeight}</span>
-          <span className="text-lg text-gray-400 ml-1">{units}</span>
-        </div>
-        <p className="text-sm text-gray-400">
-          {scheme} · complete it to move up to {lift.currentWeight + state.increments[liftId]} {units}
-        </p>
-        {lift.failureCount > 0 && (
-          <p className="text-sm text-amber-400">
-            Missed {lift.failureCount}× in a row at this weight. {MAX_FAILURES_BEFORE_DELOAD} misses in a row
-            triggers a 10% deload.
-          </p>
-        )}
-      </section>
+      <div role="tablist" aria-label="Lift information" className="flex bg-gray-800 rounded-lg p-0.5">
+        {TABS.map(t => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            onClick={() => setTab(t.id)}
+            className={`flex-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              tab === t.id ? 'bg-gray-100 text-gray-900' : 'text-gray-400 hover:text-gray-200'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-      <section className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
-        <h2 className="px-4 py-3 border-b border-gray-800 text-sm font-semibold text-gray-400 uppercase tracking-wide">
-          Personal Records
-        </h2>
-        <div className="divide-y divide-gray-800">
-          <RecordRow label="Heaviest completed" record={records.heaviest} units={units} />
-          <RecordRow label="Best estimated 1RM" record={records.bestE1RM} units={units} />
-          <RecordRow label="Most volume in a session" record={records.bestVolume} units={units} />
-        </div>
-        {successRate !== null && (
-          <p className="px-4 py-3 border-t border-gray-800 text-xs text-gray-500">
-            {records.sessions} session{records.sessions === 1 ? '' : 's'} · {successRate}% completed
-          </p>
-        )}
-      </section>
+      {tab === 'progress' ? (
+        <div role="tabpanel" className="space-y-4">
+          <section className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Current Weight</h2>
+              <StatusBadge status={lift.status} failureCount={lift.failureCount} />
+            </div>
+            <div className="font-mono text-gray-50">
+              <span className="text-4xl font-bold">{lift.currentWeight}</span>
+              <span className="text-lg text-gray-400 ml-1">{units}</span>
+            </div>
+            <p className="text-sm text-gray-400">
+              {scheme} · complete it to move up to {lift.currentWeight + state.increments[liftId]} {units}
+            </p>
+            {lift.failureCount > 0 && (
+              <p className="text-sm text-amber-400">
+                Missed {lift.failureCount}× in a row at this weight. {MAX_FAILURES_BEFORE_DELOAD} misses in a row
+                triggers a 10% deload.
+              </p>
+            )}
+          </section>
 
-      <section className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-4">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex bg-gray-800 rounded-lg p-0.5">
-            {METRICS.map(m => (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => setMetric(m.id)}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                  metric === m.id ? 'bg-gray-100 text-gray-900' : 'text-gray-400 hover:text-gray-200'
-                }`}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex gap-1">
-            {(['10', '30', 'all'] as ChartRange[]).map(r => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setRange(r)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
-                  range === r ? 'bg-[#1a4a16]/50 text-[#47c23f]' : 'text-gray-500 hover:text-gray-300'
-                }`}
-              >
-                {r === 'all' ? 'All' : r}
-              </button>
-            ))}
-          </div>
+          <section className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+            <h2 className="px-4 py-3 border-b border-gray-800 text-sm font-semibold text-gray-400 uppercase tracking-wide">
+              Personal Records
+            </h2>
+            <div className="divide-y divide-gray-800">
+              <RecordRow label="Heaviest completed" record={records.heaviest} units={units} />
+              <RecordRow label="Best estimated 1RM" record={records.bestE1RM} units={units} />
+              <RecordRow label="Most volume in a session" record={records.bestVolume} units={units} />
+            </div>
+            {successRate !== null && (
+              <p className="px-4 py-3 border-t border-gray-800 text-xs text-gray-500">
+                {records.sessions} session{records.sessions === 1 ? '' : 's'} · {successRate}% completed
+              </p>
+            )}
+          </section>
+
+          <section className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex bg-gray-800 rounded-lg p-0.5">
+                {METRICS.map(m => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setMetric(m.id)}
+                    className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                      metric === m.id ? 'bg-gray-100 text-gray-900' : 'text-gray-400 hover:text-gray-200'
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-1">
+                {(['10', '30', 'all'] as ChartRange[]).map(r => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRange(r)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                      range === r ? 'bg-[#1a4a16]/50 text-[#47c23f]' : 'text-gray-500 hover:text-gray-300'
+                    }`}
+                  >
+                    {r === 'all' ? 'All' : r}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <LiftChart liftId={liftId} workouts={state.workouts} units={units} range={range} metric={metric} />
+          </section>
         </div>
-        <LiftChart liftId={liftId} workouts={state.workouts} units={units} range={range} metric={metric} />
-      </section>
+      ) : (
+        <div role="tabpanel" className="space-y-4">
+          <section className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-3">
+            <LiftAnimation liftId={liftId} className="w-full h-52" />
+            <p className="text-sm text-gray-300">{technique.summary}</p>
+          </section>
+
+          <CueList title="Set up" items={technique.setup} />
+          <CueList title="The lift" items={technique.execution} />
+          <CueList title="Common mistakes" items={technique.mistakes} tone="warning" />
+        </div>
+      )}
     </div>
   )
 }
