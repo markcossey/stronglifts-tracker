@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { AppState, BodyWeightEntry, LiftId, PrescribedWorkout, Workout, WorkoutType } from '../model/types'
+import type { AppState, BodyWeightEntry, BodyWeightUnits, LiftId, PrescribedWorkout, Workout, WorkoutType } from '../model/types'
 import { DEFAULT_TAP_FEEDBACK, LIFT_DISPLAY_NAMES } from '../model/defaults'
 import { getWorkoutPrescription } from '../model/programme'
 import { loadDraft } from '../model/workoutDraft'
@@ -16,7 +16,7 @@ interface TodayProps {
   onCompleteWorkout: (workout: Workout) => void
   onOpenLift: (liftId: LiftId) => void
   onOpenBodyWeight: () => void
-  onSaveBodyWeight: (entry: BodyWeightEntry, previousDate?: string) => void
+  onSaveBodyWeight: (entry: BodyWeightEntry, previousDate: string | undefined, bodyWeightUnits: BodyWeightUnits) => void
 }
 
 type ViewState =

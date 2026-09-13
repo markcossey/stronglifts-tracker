@@ -1,14 +1,21 @@
 import { useState } from 'react'
-import type { AppState, BodyWeightEntry } from '../model/types'
+import type { AppState, BodyWeightEntry, BodyWeightUnits } from '../model/types'
 import { formatDate } from '../model/dates'
-import { formatWeightChange, getBodyWeightChange } from '../model/bodyWeight'
+import {
+  bodyWeightParts,
+  formatBodyWeight,
+  formatWeightChange,
+  getBodyWeightChange,
+  numericUnits,
+  shownBodyWeights,
+} from '../model/bodyWeight'
 import Button from '../ui/Button'
 import BodyWeightChart, { type BodyWeightRange } from './BodyWeightChart'
 import BodyWeightDialog from './BodyWeightDialog'
 
 interface BodyWeightDetailProps {
   state: AppState
-  onSave: (entry: BodyWeightEntry, previousDate?: string) => void
+  onSave: (entry: BodyWeightEntry, previousDate: string | undefined, bodyWeightUnits: BodyWeightUnits) => void
   onDelete: (date: string) => void
   onBack: () => void
 }
@@ -28,10 +35,14 @@ export default function BodyWeightDetail({ state, onSave, onDelete, onBack }: Bo
   const [showAll, setShowAll] = useState(false)
 
   const units = state.units
+  const shown = state.bodyWeightUnits ?? units
+  const changeUnits = numericUnits(shown)
   const entries = state.bodyWeights ?? []
+  const shownEntries = shownBodyWeights(entries, units, shown)
   const latest = entries[entries.length - 1]
-  const change = getBodyWeightChange(entries, 30)
-  const newestFirst = [...entries].reverse()
+  const shownLatest = shownEntries[shownEntries.length - 1]
+  const change = getBodyWeightChange(shownEntries, 30)
+  const newestFirst = [...shownEntries].reverse()
   const rows = showAll ? newestFirst : newestFirst.slice(0, INITIAL_ROWS)
 
   return (
@@ -47,15 +58,19 @@ export default function BodyWeightDetail({ state, onSave, onDelete, onBack }: Bo
 
       <section className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-3">
         <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Latest</h2>
-        {latest ? (
+        {shownLatest ? (
           <div>
             <div className="font-mono text-gray-50">
-              <span className="text-4xl font-bold">{latest.weight}</span>
-              <span className="text-lg text-gray-400 ml-1">{units}</span>
+              {bodyWeightParts(shownLatest.weight, shown).map(part => (
+                <span key={part.unit} className="mr-2 last:mr-0">
+                  <span className="text-4xl font-bold">{part.value}</span>
+                  <span className="text-lg text-gray-400 ml-1">{part.unit}</span>
+                </span>
+              ))}
             </div>
             <p className="text-sm text-gray-400">
-              {formatDate(latest.date)}
-              {change && ` · ${formatWeightChange(change.change, units)} since ${formatDate(change.since)}`}
+              {formatDate(shownLatest.date)}
+              {change && ` · ${formatWeightChange(change.change, changeUnits)} since ${formatDate(change.since)}`}
             </p>
           </div>
         ) : (
@@ -83,7 +98,7 @@ export default function BodyWeightDetail({ state, onSave, onDelete, onBack }: Bo
               ))}
             </div>
           </div>
-          <BodyWeightChart entries={entries} units={units} range={range} />
+          <BodyWeightChart entries={shownEntries} units={shown} range={range} />
         </section>
       )}
 
@@ -100,15 +115,15 @@ export default function BodyWeightDetail({ state, onSave, onDelete, onBack }: Bo
                 <button
                   key={entry.date}
                   type="button"
-                  onClick={() => setDialog({ entry })}
+                  onClick={() => setDialog({ entry: entries.find(e => e.date === entry.date) })}
                   className="w-full text-left px-4 py-3 flex items-center justify-between gap-2 hover:bg-gray-800/50 active:bg-gray-800 transition-colors"
                 >
                   <span className="text-sm text-gray-300">
                     {formatDate(entry.date, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                   </span>
                   <span className="flex items-baseline gap-3">
-                    {diff !== 0 && <span className="text-xs text-gray-500">{formatWeightChange(diff, units)}</span>}
-                    <span className="font-mono font-bold text-gray-100 whitespace-nowrap">{entry.weight} {units}</span>
+                    {diff !== 0 && <span className="text-xs text-gray-500">{formatWeightChange(diff, changeUnits)}</span>}
+                    <span className="font-mono font-bold text-gray-100 whitespace-nowrap">{formatBodyWeight(entry.weight, shown)}</span>
                   </span>
                 </button>
               )
@@ -129,6 +144,7 @@ export default function BodyWeightDetail({ state, onSave, onDelete, onBack }: Bo
       {dialog && (
         <BodyWeightDialog
           units={units}
+          bodyWeightUnits={shown}
           entry={dialog.entry}
           suggestedWeight={latest?.weight}
           onSave={onSave}

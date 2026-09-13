@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { AppState, BodyWeightEntry, LiftId } from '../model/types'
+import type { AppState, BodyWeightEntry, BodyWeightUnits, LiftId } from '../model/types'
 import { ALL_LIFTS, LIFT_DISPLAY_NAMES } from '../model/defaults'
 import BodyWeightCard from './BodyWeightCard'
 import LiftChart from './LiftChart'
@@ -10,7 +10,7 @@ interface ProgressProps {
   state: AppState
   onOpenLift: (liftId: LiftId) => void
   onOpenBodyWeight: () => void
-  onSaveBodyWeight: (entry: BodyWeightEntry, previousDate?: string) => void
+  onSaveBodyWeight: (entry: BodyWeightEntry, previousDate: string | undefined, bodyWeightUnits: BodyWeightUnits) => void
   onOpenReviews: () => void
 }
 

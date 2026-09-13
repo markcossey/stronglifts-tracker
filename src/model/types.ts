@@ -1,4 +1,5 @@
 export type Units = 'kg' | 'lb'
+export type BodyWeightUnits = Units | 'st'
 export type WorkoutType = 'A' | 'B'
 export type LiftId = 'squat' | 'bench' | 'row' | 'ohp' | 'deadlift'
 export type LiftStatus = 'progressing' | 'failed' | 'stalled' | 'deloading'
@@ -69,6 +70,7 @@ export interface AppState {
   lastWorkoutUndo?: WorkoutUndo
   tapFeedback?: TapFeedback
   bodyWeights?: BodyWeightEntry[]
+  bodyWeightUnits?: BodyWeightUnits
   reviews?: SavedReview[]
 }
 

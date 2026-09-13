@@ -1,13 +1,28 @@
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
-import type { BodyWeightEntry } from '../model/types'
+import type { BodyWeightEntry, BodyWeightUnits } from '../model/types'
 import { formatDate, localDateString } from '../model/dates'
+import { formatBodyWeight, splitStones } from '../model/bodyWeight'
 
 export type BodyWeightRange = '30' | '90' | '365' | 'all'
 
+// `entries` are in the shown units (pounds for stone).
 interface BodyWeightChartProps {
   entries: BodyWeightEntry[]
-  units: string
+  units: BodyWeightUnits
   range: BodyWeightRange
+}
+
+// Stone ticks land on whole-pound steps that keep the labels readable, e.g. "13st 7".
+function stoneTicks(min: number, max: number): number[] {
+  const step = [1, 2, 7, 14, 28].find(s => (max - min) / s <= 5) ?? 56
+  const ticks = []
+  for (let t = Math.ceil(min / step) * step; t <= max; t += step) ticks.push(t)
+  return ticks
+}
+
+function formatStoneTick(pounds: number): string {
+  const { stones, pounds: remainder } = splitStones(pounds)
+  return remainder === 0 ? `${stones}st` : `${stones}st ${remainder}`
 }
 
 function formatTimestamp(time: number): string {
@@ -32,6 +47,8 @@ export default function BodyWeightChart({ entries, units, range }: BodyWeightCha
   const min = Math.min(...weights)
   const max = Math.max(...weights)
   const padding = Math.max((max - min) * 0.15, 1)
+  const domain = [Math.floor(min - padding), Math.ceil(max + padding)]
+  const stone = units === 'st'
 
   return (
     <ResponsiveContainer width="100%" height={200}>
@@ -49,15 +66,18 @@ export default function BodyWeightChart({ entries, units, range }: BodyWeightCha
           axisLine={{ stroke: '#374151' }}
         />
         <YAxis
-          domain={[Math.floor(min - padding), Math.ceil(max + padding)]}
+          domain={domain}
+          ticks={stone ? stoneTicks(domain[0], domain[1]) : undefined}
+          tickFormatter={stone ? formatStoneTick : undefined}
+          width={stone ? 68 : 60}
           tick={{ fontSize: 11, fill: '#6b7280' }}
           tickLine={false}
           axisLine={{ stroke: '#374151' }}
-          unit={` ${units}`}
+          unit={stone ? undefined : ` ${units}`}
         />
         <Tooltip
           labelFormatter={formatTimestamp}
-          formatter={(value: number) => [`${value} ${units}`, 'Body weight']}
+          formatter={(value: number) => [formatBodyWeight(value, units), 'Body weight']}
           contentStyle={{
             borderRadius: '8px',
             border: '1px solid #374151',
