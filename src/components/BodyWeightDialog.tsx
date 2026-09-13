@@ -115,7 +115,7 @@ export default function BodyWeightDialog({
                   type="button"
                   onClick={() => switchUnits(option.id)}
                   aria-pressed={shown === option.id}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                  className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
                     shown === option.id ? 'bg-[#1a4a16]/50 text-[#47c23f]' : 'text-gray-500 hover:text-gray-300'
                   }`}
                 >
