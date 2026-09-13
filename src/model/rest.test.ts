@@ -1,19 +1,14 @@
 import { describe, expect, test } from 'vitest'
-import { getRestDuration, REST_AFTER_EASY, REST_AFTER_HARD, REST_AFTER_MISS } from './rest'
+import { getRestDuration, REST_AFTER_MISS, REST_AFTER_SET } from './rest'
 
 describe('getRestDuration', () => {
-  test('rests briefly after the opening sets of a lift', () => {
-    expect(getRestDuration(0, true)).toBe(REST_AFTER_EASY)
-    expect(getRestDuration(1, true)).toBe(REST_AFTER_EASY)
+  test('rests three minutes after a completed set', () => {
+    expect(getRestDuration(true)).toBe(REST_AFTER_SET)
+    expect(REST_AFTER_SET).toBe(180)
   })
 
-  test('rests longer once the sets get hard', () => {
-    expect(getRestDuration(2, true)).toBe(REST_AFTER_HARD)
-    expect(getRestDuration(4, true)).toBe(REST_AFTER_HARD)
-  })
-
-  test('rests longest after a missed set, wherever it happens', () => {
-    expect(getRestDuration(0, false)).toBe(REST_AFTER_MISS)
-    expect(getRestDuration(4, false)).toBe(REST_AFTER_MISS)
+  test('rests five minutes after a missed set', () => {
+    expect(getRestDuration(false)).toBe(REST_AFTER_MISS)
+    expect(REST_AFTER_MISS).toBe(300)
   })
 })

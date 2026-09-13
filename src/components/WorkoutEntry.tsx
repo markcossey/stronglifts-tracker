@@ -9,7 +9,7 @@ import ConfirmDialog from '../ui/ConfirmDialog'
 import PlateDisplay from '../ui/PlateDisplay'
 import Sparkline from '../ui/Sparkline'
 import { playRestAlert, playTapSound, unlockAudio, vibrateTap } from '../ui/feedback'
-import { getRestDuration, REST_AFTER_HARD } from '../model/rest'
+import { getRestDuration, REST_AFTER_SET } from '../model/rest'
 
 interface WorkoutEntryProps {
   prescription: PrescribedWorkout
@@ -43,7 +43,7 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
   )
   const [workoutNotes, setWorkoutNotes] = useState(draft?.workoutNotes ?? '')
   const [restEndTime, setRestEndTime] = useState<number | null>(draft?.restEndTime ?? null)
-  const [restDuration, setRestDuration] = useState(draft?.restDuration ?? REST_AFTER_HARD)
+  const [restDuration, setRestDuration] = useState(draft?.restDuration ?? REST_AFTER_SET)
   const [showPlates, setShowPlates] = useState<LiftId | null>(null)
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false)
   const [weightOverrides, setWeightOverrides] = useState<number[]>(
@@ -119,7 +119,7 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
     if (next.every(ex => ex.every(s => s !== null))) {
       setRestEndTime(null)
     } else {
-      const duration = getRestDuration(setIdx, result.completed)
+      const duration = getRestDuration(result.completed)
       const start = Date.now()
       setNow(start)
       setRestDuration(duration)
