@@ -36,6 +36,12 @@ export interface Workout {
   endTime?: string
 }
 
+export interface SavedReview {
+  month: string
+  markdown: string
+  savedAt: string
+}
+
 export interface BodyWeightEntry {
   date: string
   weight: number
@@ -63,6 +69,7 @@ export interface AppState {
   lastWorkoutUndo?: WorkoutUndo
   tapFeedback?: TapFeedback
   bodyWeights?: BodyWeightEntry[]
+  reviews?: SavedReview[]
 }
 
 export interface PrescribedExercise {

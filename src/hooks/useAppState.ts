@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import type { AppState, BodyWeightEntry, LiftId, Units, Workout } from '../model/types'
+import type { AppState, BodyWeightEntry, LiftId, SavedReview, Units, Workout } from '../model/types'
 import { deleteBodyWeight, saveBodyWeight } from '../model/bodyWeight'
+import { deleteReview, saveReview } from '../model/reviews'
 import {
   convertStateUnits,
   createAppState,
@@ -63,6 +64,14 @@ export function useAppState() {
     setState(prev => prev ? deleteBodyWeight(prev, date) : prev)
   }, [])
 
+  const saveReviewEntry = useCallback((review: SavedReview) => {
+    setState(prev => prev ? saveReview(prev, review) : prev)
+  }, [])
+
+  const deleteReviewEntry = useCallback((month: string) => {
+    setState(prev => prev ? deleteReview(prev, month) : prev)
+  }, [])
+
   const updateLiftWeight = useCallback((liftId: LiftId, weight: number) => {
     setState(prev => {
       if (!prev) return prev
@@ -111,6 +120,8 @@ export function useAppState() {
     convertUnits,
     saveBodyWeight: saveBodyWeightEntry,
     deleteBodyWeight: deleteBodyWeightEntry,
+    saveReview: saveReviewEntry,
+    deleteReview: deleteReviewEntry,
     prescription: state ? getWorkoutPrescription(state) : null,
   }
 }

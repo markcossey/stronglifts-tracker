@@ -11,8 +11,9 @@ import Progress from './Progress'
 import Settings from './Settings'
 import LiftDetail from './LiftDetail'
 import BodyWeightDetail from './BodyWeightDetail'
+import ReviewsDetail from './ReviewsDetail'
 
-type DetailPage = { type: 'lift'; liftId: LiftId } | { type: 'bodyWeight' }
+type DetailPage = { type: 'lift'; liftId: LiftId } | { type: 'bodyWeight' } | { type: 'reviews' }
 
 export default function App() {
   const app = useAppState()
@@ -35,6 +36,7 @@ export default function App() {
   }, [])
   const openLiftDetail = useCallback((liftId: LiftId) => openDetail({ type: 'lift', liftId }), [openDetail])
   const openBodyWeight = useCallback(() => openDetail({ type: 'bodyWeight' }), [openDetail])
+  const openReviews = useCallback(() => openDetail({ type: 'reviews' }), [openDetail])
   const closeDetail = useCallback(() => setDetail(null), [])
 
   useLayoutEffect(() => {
@@ -81,6 +83,7 @@ export default function App() {
           onOpenLift={openLiftDetail}
           onOpenBodyWeight={openBodyWeight}
           onSaveBodyWeight={app.saveBodyWeight}
+          onOpenReviews={openReviews}
         />
       )}
       {activeTab === 'settings' && (
@@ -103,6 +106,14 @@ export default function App() {
           state={app.state}
           onSave={app.saveBodyWeight}
           onDelete={app.deleteBodyWeight}
+          onBack={closeDetail}
+        />
+      )}
+      {detail?.type === 'reviews' && (
+        <ReviewsDetail
+          state={app.state}
+          onSave={app.saveReview}
+          onDelete={app.deleteReview}
           onBack={closeDetail}
         />
       )}
