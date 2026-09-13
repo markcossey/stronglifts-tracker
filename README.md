@@ -98,3 +98,10 @@ npm run test:run # single run
 - Recharts
 - Vitest
 - localStorage (no backend)
+
+## Credits
+
+Lift illustrations in the Technique tab are by [Everkinetic](https://everkinetic.com), used under
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) via the
+[workout-guide](https://github.com/bryllim/workout-guide) SVG set. The files in `public/lifts/` are
+unmodified.

@@ -181,6 +181,21 @@ export default function LiftDetail({ liftId, state, onBack }: LiftDetailProps) {
           <section className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-3">
             <LiftAnimation liftId={liftId} className="w-full h-52" />
             <p className="text-sm text-gray-300">{technique.summary}</p>
+            <p className="text-[11px] text-gray-600">
+              Illustration by{' '}
+              <a href="https://everkinetic.com" target="_blank" rel="noopener noreferrer" className="underline">
+                Everkinetic
+              </a>
+              ,{' '}
+              <a
+                href="https://creativecommons.org/licenses/by-sa/4.0/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                CC BY-SA 4.0
+              </a>
+            </p>
           </section>
 
           <CueList title="Set up" items={technique.setup} />

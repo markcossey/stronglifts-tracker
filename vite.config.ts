@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon-180.png'],
+      includeAssets: ['icon-180.png', 'lifts/*.svg'],
       manifest: {
         name: 'StrongLifts 5×5',
         short_name: 'StrongLifts',
