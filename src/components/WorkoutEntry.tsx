@@ -9,8 +9,7 @@ import ConfirmDialog from '../ui/ConfirmDialog'
 import PlateDisplay from '../ui/PlateDisplay'
 import Sparkline from '../ui/Sparkline'
 import { playRestAlert, playTapSound, unlockAudio, vibrateTap } from '../ui/feedback'
-
-const REST_DURATION = 180
+import { getRestDuration, REST_AFTER_HARD } from '../model/rest'
 
 interface WorkoutEntryProps {
   prescription: PrescribedWorkout
@@ -44,6 +43,7 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
   )
   const [workoutNotes, setWorkoutNotes] = useState(draft?.workoutNotes ?? '')
   const [restEndTime, setRestEndTime] = useState<number | null>(draft?.restEndTime ?? null)
+  const [restDuration, setRestDuration] = useState(draft?.restDuration ?? REST_AFTER_HARD)
   const [showPlates, setShowPlates] = useState<LiftId | null>(null)
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false)
   const [weightOverrides, setWeightOverrides] = useState<number[]>(
@@ -60,8 +60,9 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
       workoutNotes,
       weights: weightOverrides,
       restEndTime,
+      restDuration,
     })
-  }, [prescription, startTime, exercises, notes, workoutNotes, weightOverrides, restEndTime])
+  }, [prescription, startTime, exercises, notes, workoutNotes, weightOverrides, restEndTime, restDuration])
 
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000)
@@ -118,9 +119,11 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
     if (next.every(ex => ex.every(s => s !== null))) {
       setRestEndTime(null)
     } else {
+      const duration = getRestDuration(setIdx, result.completed)
       const start = Date.now()
       setNow(start)
-      setRestEndTime(start + REST_DURATION * 1000)
+      setRestDuration(duration)
+      setRestEndTime(start + duration * 1000)
     }
   }
 
@@ -321,7 +324,7 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
               {!restOver && (
                 <div
                   className="absolute left-0 bottom-0 h-1 bg-[#47c23f] transition-all duration-1000"
-                  style={{ width: `${(restRemaining / REST_DURATION) * 100}%` }}
+                  style={{ width: `${(restRemaining / restDuration) * 100}%` }}
                 />
               )}
             </button>

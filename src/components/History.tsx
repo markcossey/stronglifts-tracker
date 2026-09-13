@@ -3,6 +3,7 @@ import type { AppState, Workout } from '../model/types'
 import { LIFT_DISPLAY_NAMES } from '../model/defaults'
 import { canUndoWorkout, isExerciseComplete } from '../model/programme'
 import { localDateString } from '../model/dates'
+import WorkoutCalendar from './WorkoutCalendar'
 import WorkoutDetail from './WorkoutDetail'
 
 interface HistoryProps {
@@ -56,6 +57,8 @@ export default function History({ state, onEditWorkout, onDeleteWorkout }: Histo
   return (
     <div className="p-4 max-w-lg mx-auto space-y-4">
       <h1 className="text-2xl font-bold text-gray-100">History</h1>
+
+      <WorkoutCalendar workouts={state.workouts} onSelectWorkout={setSelectedWorkout} />
 
       {sortedWorkouts.length === 0 ? (
         <div className="text-center py-12 text-gray-500">

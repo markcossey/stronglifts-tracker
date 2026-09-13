@@ -10,6 +10,7 @@ export interface WorkoutDraft {
   workoutNotes: string
   weights: number[]
   restEndTime: number | null
+  restDuration?: number
 }
 
 export function loadDraft(): WorkoutDraft | null {
