@@ -12,8 +12,13 @@ import Settings from './Settings'
 import LiftDetail from './LiftDetail'
 import BodyWeightDetail from './BodyWeightDetail'
 import ReviewsDetail from './ReviewsDetail'
+import FunctionalExerciseDetail from './FunctionalExerciseDetail'
 
-type DetailPage = { type: 'lift'; liftId: LiftId } | { type: 'bodyWeight' } | { type: 'reviews' }
+type DetailPage =
+  | { type: 'lift'; liftId: LiftId }
+  | { type: 'bodyWeight' }
+  | { type: 'reviews' }
+  | { type: 'functionalExercise'; sessionId: string; exerciseId: string }
 
 export default function App() {
   const app = useAppState()
@@ -37,6 +42,10 @@ export default function App() {
   const openLiftDetail = useCallback((liftId: LiftId) => openDetail({ type: 'lift', liftId }), [openDetail])
   const openBodyWeight = useCallback(() => openDetail({ type: 'bodyWeight' }), [openDetail])
   const openReviews = useCallback(() => openDetail({ type: 'reviews' }), [openDetail])
+  const openFunctionalExercise = useCallback(
+    (sessionId: string, exerciseId: string) => openDetail({ type: 'functionalExercise', sessionId, exerciseId }),
+    [openDetail],
+  )
   const closeDetail = useCallback(() => setDetail(null), [])
 
   useLayoutEffect(() => {
@@ -66,6 +75,7 @@ export default function App() {
           prescription={app.prescription}
           onCompleteWorkout={app.completeWorkout}
           onCompleteFunctionalWorkout={app.completeFunctionalWorkout}
+          onOpenFunctionalExercise={openFunctionalExercise}
           onOpenLift={openLiftDetail}
           onOpenBodyWeight={openBodyWeight}
           onSaveBodyWeight={app.saveBodyWeight}
@@ -78,6 +88,7 @@ export default function App() {
           onDeleteWorkout={app.deleteWorkout}
           onEditFunctionalWorkout={app.editFunctionalWorkout}
           onDeleteFunctionalWorkout={app.deleteFunctionalWorkout}
+          onOpenFunctionalExercise={openFunctionalExercise}
         />
       )}
       {activeTab === 'progress' && (
@@ -117,6 +128,13 @@ export default function App() {
           state={app.state}
           onSave={app.saveReview}
           onDelete={app.deleteReview}
+          onBack={closeDetail}
+        />
+      )}
+      {detail?.type === 'functionalExercise' && (
+        <FunctionalExerciseDetail
+          sessionId={detail.sessionId}
+          exerciseId={detail.exerciseId}
           onBack={closeDetail}
         />
       )}

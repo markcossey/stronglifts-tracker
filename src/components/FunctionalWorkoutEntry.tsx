@@ -21,6 +21,7 @@ interface FunctionalWorkoutEntryProps {
   session: FunctionalSession
   draft: FunctionalWorkoutDraft | null
   tapFeedback: TapFeedback
+  onOpenExercise: (sessionId: string, exerciseId: string) => void
   onComplete: (workout: FunctionalWorkout) => void
   onCancel: () => void
 }
@@ -41,6 +42,7 @@ export default function FunctionalWorkoutEntry({
   session,
   draft,
   tapFeedback,
+  onOpenExercise,
   onComplete,
   onCancel,
 }: FunctionalWorkoutEntryProps) {
@@ -168,9 +170,18 @@ export default function FunctionalWorkoutEntry({
             {indices.map(([ex, exIdx]) => (
               <div key={ex.id} className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-3">
                 <div>
-                  <h4 className="text-lg font-bold text-gray-100">
-                    {ex.name}
-                    {ex.optional && <span className="text-xs font-normal text-gray-500"> (optional)</span>}
+                  <h4>
+                    <button
+                      type="button"
+                      onClick={() => onOpenExercise(session.id, ex.id)}
+                      className="flex items-center gap-1 text-lg font-bold text-gray-100 hover:text-white active:text-sky-400 transition-colors"
+                    >
+                      {ex.name}
+                      {ex.optional && <span className="text-xs font-normal text-gray-500"> (optional)</span>}
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+                        <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
                   </h4>
                   <p className="text-sm text-gray-400">{ex.prescription}</p>
                   {ex.cue && <p className="text-xs text-gray-500 italic mt-0.5">{ex.cue}</p>}

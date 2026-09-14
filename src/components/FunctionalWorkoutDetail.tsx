@@ -10,9 +10,10 @@ interface FunctionalWorkoutDetailProps {
   onBack: () => void
   onSave: (updated: FunctionalWorkout) => void
   onDelete: () => void
+  onOpenExercise: (sessionId: string, exerciseId: string) => void
 }
 
-export default function FunctionalWorkoutDetail({ workout, onBack, onSave, onDelete }: FunctionalWorkoutDetailProps) {
+export default function FunctionalWorkoutDetail({ workout, onBack, onSave, onDelete, onOpenExercise }: FunctionalWorkoutDetailProps) {
   const session = getFunctionalSession(workout.sessionId)
   const [editing, setEditing] = useState(false)
   const [editNotes, setEditNotes] = useState(workout.notes ?? '')
@@ -68,7 +69,18 @@ export default function FunctionalWorkoutDetail({ workout, onBack, onSave, onDel
           return (
             <div key={ex.exerciseId} className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-2">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-gray-100">{def?.name ?? ex.exerciseId}</h3>
+                <h3>
+                  <button
+                    type="button"
+                    onClick={() => onOpenExercise(workout.sessionId, ex.exerciseId)}
+                    className="flex items-center gap-1 font-semibold text-gray-100 hover:text-white active:text-sky-400 transition-colors"
+                  >
+                    {def?.name ?? ex.exerciseId}
+                    <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+                      <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                </h3>
                 <span className={`text-sm font-medium ${completed ? 'text-sky-400' : 'text-gray-500'}`}>
                   {completedSets}/{ex.sets.length} sets
                 </span>

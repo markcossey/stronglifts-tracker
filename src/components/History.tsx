@@ -15,6 +15,7 @@ interface HistoryProps {
   onDeleteWorkout: (id: string) => void
   onEditFunctionalWorkout: (id: string, workout: FunctionalWorkout) => void
   onDeleteFunctionalWorkout: (id: string) => void
+  onOpenFunctionalExercise: (sessionId: string, exerciseId: string) => void
 }
 
 type HistoryEntry =
@@ -43,6 +44,7 @@ export default function History({
   onDeleteWorkout,
   onEditFunctionalWorkout,
   onDeleteFunctionalWorkout,
+  onOpenFunctionalExercise,
 }: HistoryProps) {
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null)
   const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null)
@@ -83,6 +85,7 @@ export default function History({
             onDeleteFunctionalWorkout(workout.id)
             setSelectedEntry(null)
           }}
+          onOpenExercise={onOpenFunctionalExercise}
         />
       </div>
     )

@@ -19,6 +19,7 @@ interface TodayProps {
   prescription: PrescribedWorkout
   onCompleteWorkout: (workout: Workout) => void
   onCompleteFunctionalWorkout: (workout: FunctionalWorkout) => void
+  onOpenFunctionalExercise: (sessionId: string, exerciseId: string) => void
   onOpenLift: (liftId: LiftId) => void
   onOpenBodyWeight: () => void
   onSaveBodyWeight: (entry: BodyWeightEntry, previousDate: string | undefined, bodyWeightUnits: BodyWeightUnits) => void
@@ -41,6 +42,7 @@ export default function Today({
   prescription,
   onCompleteWorkout,
   onCompleteFunctionalWorkout,
+  onOpenFunctionalExercise,
   onOpenLift,
   onOpenBodyWeight,
   onSaveBodyWeight,
@@ -83,6 +85,7 @@ export default function Today({
           session={session}
           draft={functionalDraft}
           tapFeedback={state.tapFeedback ?? DEFAULT_TAP_FEEDBACK}
+          onOpenExercise={onOpenFunctionalExercise}
           onComplete={handleFunctionalComplete}
           onCancel={() => {
             setFunctionalDraft(null)

@@ -32,6 +32,25 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '8 reps each side',
         cue: 'Slow and controlled.',
         equipment: [],
+        referenceUrl: 'https://www.youtube.com/watch?v=wolAuQwCLbU',
+        referenceLabel: 'Video by TonyGentilcore.com',
+        technique: {
+          summary: 'Rotate both legs together from one 90/90 hip position to the other, staying tall through your spine.',
+          setup: [
+            'Sit on the floor, front leg bent 90° in front of you, back leg bent 90° out to the side.',
+            'Both knees and ankles roughly in line, chest tall, hands free or lightly touching the floor.',
+          ],
+          execution: [
+            'Lift both knees slightly and rotate them together to the opposite side.',
+            'Land softly in the mirrored 90/90 position without using your hands to push.',
+            'Keep your spine tall throughout — the hips do the moving, not your back.',
+          ],
+          mistakes: [
+            'Leaning back and using momentum instead of hip rotation.',
+            'Letting the front knee lift off the ground and stomp down.',
+            'Rushing the switch instead of controlling it.',
+          ],
+        },
       },
       {
         id: 'cossack-squat',
@@ -41,6 +60,22 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '5 reps each side',
         cue: 'Controlled depth.',
         equipment: [],
+        referenceUrl: 'https://www.youtube.com/watch?v=tpczTeSkHz0',
+        referenceLabel: 'Video by FitnessFAQs',
+        technique: {
+          summary: 'Shift your weight into one bent leg while the other leg stays straight, sitting your hips low and back.',
+          setup: ['Feet wide, toes turned out slightly, hands together in front of your chest for balance.'],
+          execution: [
+            "Shift your weight over one leg and sink your hips down and back, keeping that heel on the floor.",
+            "Let the straight leg's toes point up as it stays extended to the side.",
+            'Push through the bent leg to return to centre, then repeat on the other side.',
+          ],
+          mistakes: [
+            'Heel lifting on the working leg.',
+            'Rounding the lower back instead of sitting the hips back.',
+            'Rushing the depth before your hips and ankles are ready — go only as deep as feels controlled.',
+          ],
+        },
       },
       {
         id: 'bodyweight-squat-pry',
@@ -50,6 +85,22 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '8 reps',
         cue: 'Pause in the bottom and gently move the knees side to side.',
         equipment: [],
+        referenceUrl: 'https://www.muscleandstrength.com/exercises/deep-squat-prying',
+        referenceLabel: 'Muscle & Strength exercise guide',
+        technique: {
+          summary: 'Sink into a deep squat and use your elbows to gently pry your knees open.',
+          setup: ['Feet slightly wider than shoulder-width, toes turned out.', 'Sink into the bottom of a squat, heels down.'],
+          execution: [
+            'Rest your elbows against the inside of your knees.',
+            'Gently press the knees outward and hold briefly, then let them come back in.',
+            'Repeat the pry a few times each rep, breathing steadily.',
+          ],
+          mistakes: [
+            'Heels lifting to reach depth.',
+            'Forcing the knees open aggressively instead of a gentle pry.',
+            'Holding your breath instead of breathing through it.',
+          ],
+        },
       },
       {
         id: 'cat-cow',
@@ -59,6 +110,21 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '6-8 reps',
         cue: 'Controlled spinal movement.',
         equipment: [],
+        referenceUrl: 'https://www.youtube.com/watch?v=Fa4ZMS5M7xA',
+        referenceLabel: 'Video by Yoga52',
+        technique: {
+          summary: 'Alternate between arching and rounding your spine on hands and knees.',
+          setup: ['Hands under shoulders, knees under hips, spine neutral.'],
+          execution: [
+            'Cow: drop your belly, lift your chest and tailbone, look slightly up.',
+            'Cat: round your spine up toward the ceiling, tuck your tailbone and chin.',
+            'Move slowly with your breath — inhale into cow, exhale into cat.',
+          ],
+          mistakes: [
+            'Moving only from the neck instead of the whole spine.',
+            'Rushing through the reps instead of moving with your breath.',
+          ],
+        },
       },
       {
         id: 'landmine-reverse-lunge',
@@ -68,6 +134,26 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '8 reps each leg',
         cue: 'Light/moderate weight. 2-3 second eccentric. RPE 5-6. Focus on hip, knee and ankle control.',
         equipment: ['Barbell', 'Landmine attachment'],
+        referenceUrl: 'https://www.muscleandstrength.com/exercises/landmine-reverse-lunge',
+        referenceLabel: 'Muscle & Strength exercise guide',
+        technique: {
+          summary: 'Hold the landmine sleeve at your shoulder or chest and step back into a controlled reverse lunge.',
+          setup: [
+            'Load the barbell into the landmine attachment.',
+            'Hold the sleeve end at your chest or front shoulder with both hands.',
+          ],
+          execution: [
+            'Step one leg back and lower until the back knee lightly touches or hovers above the floor.',
+            'Front shin stays close to vertical, front knee tracking over the foot.',
+            'Drive through the front heel to return to standing.',
+            'Lower for 2-3 seconds on the way down — control the eccentric.',
+          ],
+          mistakes: [
+            'Front knee caving inward.',
+            'Letting the torso lean forward instead of staying tall.',
+            'Pushing past a controlled depth just to add reps — stop before you grind.',
+          ],
+        },
       },
       {
         id: 'single-leg-rdl',
@@ -77,6 +163,25 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '8 reps each side',
         cue: 'Prefer kettlebell. Light/moderate weight, controlled movement. Focus on hamstrings, glutes, balance and hip stability.',
         equipment: ['Kettlebell'],
+        referenceUrl: 'https://www.muscleandstrength.com/exercises/1-kettlebell-single-leg-deadlift',
+        referenceLabel: 'Muscle & Strength exercise guide',
+        technique: {
+          summary: 'Hinge at the hip over one leg while the other leg extends behind you for balance.',
+          setup: [
+            'Hold a kettlebell in the hand opposite your standing leg (or in both hands).',
+            'Stand tall on one leg with a soft bend in the knee.',
+          ],
+          execution: [
+            'Hinge forward at the hip, letting the free leg extend straight back behind you.',
+            'Keep your hips square to the floor and the kettlebell close to your standing leg.',
+            'Reverse the motion by driving your hip forward to return to standing.',
+          ],
+          mistakes: [
+            'Hips rotating open instead of staying square.',
+            'Rounding the lower back to reach further.',
+            'Rushing the balance instead of moving under control.',
+          ],
+        },
       },
       {
         id: 'ab-roller',
@@ -86,6 +191,22 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '6-10 reps',
         cue: 'Controlled. Stop before losing trunk/pelvic control — do not train to failure.',
         equipment: ['Ab roller'],
+        referenceUrl: 'https://www.youtube.com/watch?v=Pdd1gG8NtM4',
+        referenceLabel: 'Video by SURGE Strength',
+        technique: {
+          summary: 'Roll the wheel out from your knees while keeping your core braced, then pull back in.',
+          setup: ['Kneel on a mat, hands on the ab roller handles, wheel under your shoulders.'],
+          execution: [
+            'Brace your core and roll forward slowly, keeping your hips from sagging.',
+            'Go only as far as you can keep your ribs down and lower back flat.',
+            'Pull back to the start using your core, not just your arms.',
+          ],
+          mistakes: [
+            'Letting the lower back arch and hips sag toward the floor.',
+            'Rolling out further than you can control on the way back.',
+            'Using momentum instead of a slow, braced roll.',
+          ],
+        },
       },
       {
         id: 'half-kneeling-hip-flexor-stretch',
@@ -94,6 +215,21 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         sets: 1,
         prescription: '45 seconds each side',
         equipment: [],
+        referenceUrl: 'https://www.functionalmovement.com/Exercises/788/half_kneeling_hip_flexor_stretch',
+        referenceLabel: 'Functional Movement Systems',
+        technique: {
+          summary: 'Kneel with one knee down and gently shift your hips forward to stretch the front of that hip.',
+          setup: ['Kneel on one knee with the other foot planted in front, both at roughly 90°.'],
+          execution: [
+            'Squeeze the glute of the kneeling leg and shift your hips forward slightly.',
+            "Keep your torso upright — don't lean forward to fake the stretch.",
+            'Hold the stretch, breathing normally, without forcing it.',
+          ],
+          mistakes: [
+            'Arching the lower back instead of tucking the pelvis slightly.',
+            'Leaning the torso forward instead of shifting the hips.',
+          ],
+        },
       },
       {
         id: 'hamstring-stretch',
@@ -102,6 +238,20 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         sets: 1,
         prescription: '45 seconds each side',
         equipment: [],
+        referenceUrl: 'https://library.theprehabguys.com/vimeo-video/hamstring-stretch/',
+        referenceLabel: 'The Prehab Guys',
+        technique: {
+          summary: 'Extend one leg out and hinge forward from the hips to stretch the back of that leg.',
+          setup: ['Sit or stand with one leg extended, heel down, toes up.'],
+          execution: [
+            'Hinge forward from the hips with a flat back until you feel a stretch behind the leg.',
+            'Hold without bouncing, breathing steadily.',
+          ],
+          mistakes: [
+            'Rounding the back to reach further instead of hinging at the hips.',
+            'Bouncing into the stretch.',
+          ],
+        },
       },
       {
         id: 'deep-squat-hold',
@@ -111,6 +261,21 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '60 seconds',
         cue: 'Comfortable depth.',
         equipment: [],
+        referenceUrl: 'https://www.youtube.com/watch?v=4pabcKldodc',
+        referenceLabel: 'Video by Lionstrong',
+        technique: {
+          summary: 'Sink into the bottom of a squat and hold, keeping your heels down and chest tall.',
+          setup: ['Feet shoulder-width or slightly wider, toes turned out slightly.'],
+          execution: [
+            'Sink down into a comfortable full-depth squat.',
+            'Rest your elbows against your knees if it helps hold the position.',
+            'Keep breathing and relax into the position rather than fighting it.',
+          ],
+          mistakes: [
+            'Heels lifting off the floor.',
+            'Holding your breath instead of breathing through the hold.',
+          ],
+        },
       },
     ],
   },
@@ -132,6 +297,21 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '15 reps',
         cue: 'Light resistance.',
         equipment: ['Resistance band'],
+        referenceUrl: 'https://www.youtube.com/watch?v=20rhTxoJVuw',
+        referenceLabel: 'Video by Coach Roback',
+        technique: {
+          summary: 'Pull a resistance band apart at chest height, squeezing your shoulder blades together.',
+          setup: ['Hold the band with both hands, arms extended in front of you at chest height.'],
+          execution: [
+            'Pull the band apart by driving your hands out to the sides.',
+            'Squeeze your shoulder blades together at the end, keeping your arms roughly straight.',
+            'Return slowly to the start under control.',
+          ],
+          mistakes: [
+            'Shrugging the shoulders up towards the ears.',
+            'Bending the elbows to cheat the range of motion.',
+          ],
+        },
       },
       {
         id: 'thoracic-rotations',
@@ -141,6 +321,21 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '6 reps each side',
         cue: 'Controlled.',
         equipment: [],
+        referenceUrl: 'https://www.youtube.com/watch?v=snzLuyYgbVI',
+        referenceLabel: 'Video by Ask Doctor Jo',
+        technique: {
+          summary: 'Rotate your upper back while keeping your hips still, to open up mid-back mobility.',
+          setup: ['On hands and knees, or side-lying, with one hand behind your head.'],
+          execution: [
+            'Rotate your elbow up and open your chest towards the ceiling, following it with your eyes.',
+            'Keep your hips and lower back still — the rotation comes from your upper back.',
+            'Rotate back down under control and repeat.',
+          ],
+          mistakes: [
+            'Letting the hips rotate along with the upper back.',
+            'Rushing the movement instead of rotating with control.',
+          ],
+        },
       },
       {
         id: 'scapular-push-ups',
@@ -150,6 +345,21 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '10 reps',
         cue: 'Controlled.',
         equipment: [],
+        referenceUrl: 'https://library.theprehabguys.com/vimeo-video/high-plank-scapula-push-up/',
+        referenceLabel: 'The Prehab Guys',
+        technique: {
+          summary: 'From a push-up plank, move your shoulder blades apart and together without bending your elbows.',
+          setup: ['Plank position on hands (or forearms), arms straight, body in a line.'],
+          execution: [
+            'Let your shoulder blades pinch together, allowing your chest to sink slightly.',
+            'Push the floor away, spreading your shoulder blades apart, without bending your elbows.',
+            'Repeat the pinch-and-push in a slow, controlled rhythm.',
+          ],
+          mistakes: [
+            'Bending the elbows and turning it into a push-up.',
+            'Letting the hips sag or pike instead of holding a straight line.',
+          ],
+        },
       },
       {
         id: 'neck-rotations',
@@ -159,6 +369,21 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '5 reps each direction',
         cue: 'Gentle range of motion.',
         equipment: [],
+        referenceUrl: 'https://www.youtube.com/watch?v=PruXF-NE2zI',
+        referenceLabel: 'Video by Ask Doctor Jo',
+        technique: {
+          summary: 'Gently rotate your head side to side through a comfortable range of motion.',
+          setup: ['Stand or sit tall, shoulders relaxed.'],
+          execution: [
+            'Slowly turn your head to look over one shoulder as far as is comfortable.',
+            'Return to centre and repeat to the other side.',
+            'Keep the movement slow and gentle — this is mobility, not a stretch to force.',
+          ],
+          mistakes: [
+            'Forcing the range of motion or holding at an uncomfortable end point.',
+            'Moving quickly instead of slowly and deliberately.',
+          ],
+        },
       },
       {
         id: 'single-arm-landmine-row',
@@ -168,6 +393,25 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '10 reps each side',
         cue: 'Moderate/light weight. Controlled eccentric with a brief squeeze at the top. RPE 5-6.',
         equipment: ['Barbell', 'Landmine attachment'],
+        referenceUrl: 'https://www.muscleandstrength.com/exercises/one-arm-bent-over-row.html',
+        referenceLabel: 'Muscle & Strength exercise guide',
+        technique: {
+          summary: 'Row the landmine sleeve to your hip with one arm, keeping your torso stable.',
+          setup: [
+            'Load the barbell into the landmine attachment.',
+            'Hinge at the hips with a flat back, one hand on the sleeve end, other hand or knee supported.',
+          ],
+          execution: [
+            'Pull the sleeve up towards your hip, leading with your elbow.',
+            'Squeeze briefly at the top, then lower under control.',
+            'Keep your torso still throughout — the arm moves, not your back.',
+          ],
+          mistakes: [
+            'Rotating the torso to help the pull.',
+            'Rounding the lower back instead of holding a flat hinge.',
+            'Yanking the weight instead of a controlled pull and lower.',
+          ],
+        },
       },
       {
         id: 'half-kneeling-landmine-press',
@@ -177,6 +421,24 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '8 reps each side',
         cue: "Light/moderate weight. RPE 5-6. Stay within the landmine's forward/upward arc — no overhead press or overhead clearance.",
         equipment: ['Barbell', 'Landmine attachment'],
+        referenceUrl: 'https://www.muscleandstrength.com/exercises/half-kneeling-landmine-press',
+        referenceLabel: 'Muscle & Strength exercise guide',
+        technique: {
+          summary: 'Press the landmine sleeve forward and up from your shoulder while kneeling, staying within its natural arc.',
+          setup: [
+            'Half-kneeling position, landmine sleeve racked at your shoulder.',
+            'Braced core, tall posture.',
+          ],
+          execution: [
+            'Press the sleeve forward and up along its natural arc, extending your arm.',
+            "Stop when your arm is extended — you don't need to press it directly overhead.",
+            'Lower back to your shoulder under control.',
+          ],
+          mistakes: [
+            'Leaning back to help the press instead of staying tall.',
+            "Forcing the bar into a vertical overhead path instead of following the landmine's natural arc.",
+          ],
+        },
       },
       {
         id: 'band-face-pull',
@@ -186,6 +448,21 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '15 reps',
         cue: '2-3 sets. Light/moderate resistance, controlled. Focus on upper back/rear shoulder/scapular movement.',
         equipment: ['Resistance band'],
+        referenceUrl: 'https://www.youtube.com/watch?v=AlTGQrDOd98',
+        referenceLabel: 'Video by Runna',
+        technique: {
+          summary: 'Pull a band towards your face, leading with your elbows high, to work the upper back and rear shoulders.',
+          setup: ['Anchor the band at roughly face height.', 'Hold with both hands, arms extended towards the anchor.'],
+          execution: [
+            'Pull the band towards your face, leading with your elbows and flaring them out wide.',
+            'Squeeze your shoulder blades together and briefly hold.',
+            'Return slowly under control.',
+          ],
+          mistakes: [
+            'Pulling with the arms low instead of leading with high elbows.',
+            'Using momentum instead of a controlled pull.',
+          ],
+        },
       },
       {
         id: 'landmine-rotation',
@@ -195,6 +472,25 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '8 reps each side',
         cue: 'Light weight, controlled rotation. A movement-quality/core exercise, not a conditioning exercise.',
         equipment: ['Barbell', 'Landmine attachment'],
+        referenceUrl: 'https://www.muscleandstrength.com/exercises/landmine-rotation',
+        referenceLabel: 'Muscle & Strength exercise guide',
+        technique: {
+          summary: 'Rotate the landmine sleeve from one hip to the other in a controlled arc, driven by your trunk.',
+          setup: [
+            'Hold the sleeve end with both hands, arms extended, standing side-on to the landmine.',
+            'Feet planted, knees soft.',
+          ],
+          execution: [
+            'Rotate your trunk to swing the sleeve across your body from hip height on one side to the other.',
+            'Keep your arms relatively straight and let your core drive the movement.',
+            'Control the return rather than letting the weight swing you back.',
+          ],
+          mistakes: [
+            'Using the arms to muscle the weight instead of rotating through the trunk.',
+            'Letting it turn into a fast swing instead of a controlled rotation.',
+            'Rotating through the lower back instead of the whole trunk.',
+          ],
+        },
       },
       {
         id: 'childs-pose',
@@ -205,6 +501,18 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         cue: 'Choose two cool-down stretches.',
         equipment: [],
         optional: true,
+        referenceUrl: 'https://www.mayoclinic.org/healthy-lifestyle/stress-management/multimedia/childs-pose/vid-20453580',
+        referenceLabel: 'Mayo Clinic',
+        technique: {
+          summary: 'Sit your hips back towards your heels with arms extended forward to stretch your back and shoulders.',
+          setup: ['Kneel on the floor, big toes touching, knees apart.'],
+          execution: [
+            'Sit your hips back towards your heels and walk your hands forward.',
+            'Let your chest sink towards the floor, breathing steadily.',
+            'Relax into the position rather than forcing it.',
+          ],
+          mistakes: ['Holding tension in the shoulders instead of relaxing into the stretch.'],
+        },
       },
       {
         id: 'thoracic-extension',
@@ -215,6 +523,24 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         cue: 'Using a bench if appropriate. Choose two cool-down stretches.',
         equipment: [],
         optional: true,
+        referenceUrl: 'https://library.theprehabguys.com/vimeo-video/thoracic-spine-extension-on-foam-roller/',
+        referenceLabel: 'The Prehab Guys',
+        technique: {
+          summary: 'Extend your upper back over a support (like a bench or foam roller) to open up the mid-back.',
+          setup: [
+            'Sit in front of a bench with a foam roller or similar support behind your upper back.',
+            'Hands behind your head or crossed over your chest.',
+          ],
+          execution: [
+            'Lean back over the support, letting your upper back extend.',
+            'Keep the movement in your upper back rather than your lower back.',
+            'Return to sitting under control.',
+          ],
+          mistakes: [
+            'Arching through the lower back instead of the upper back.',
+            'Forcing the range of motion instead of easing into it.',
+          ],
+        },
       },
       {
         id: 'doorway-pec-stretch',
@@ -225,6 +551,21 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         cue: 'Choose two cool-down stretches.',
         equipment: [],
         optional: true,
+        referenceUrl: 'https://www.youtube.com/watch?v=M850sCj9LHQ',
+        referenceLabel: 'Video by MedBridge',
+        technique: {
+          summary: 'Use a doorway to stretch the chest by placing your forearm on the frame and stepping through.',
+          setup: ['Stand in a doorway, forearm and elbow against the frame at roughly shoulder height.'],
+          execution: [
+            'Step forward through the doorway until you feel a stretch across your chest and front shoulder.',
+            'Hold without bouncing, breathing steadily.',
+            'Adjust the arm height slightly between sides to target different parts of the chest.',
+          ],
+          mistakes: [
+            'Placing the elbow too high or low, causing shoulder strain instead of a chest stretch.',
+            'Stepping too far and forcing the stretch.',
+          ],
+        },
       },
       {
         id: 'wrist-forearm-mobility',
@@ -235,6 +576,18 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         cue: 'Choose two cool-down stretches.',
         equipment: [],
         optional: true,
+        referenceUrl: 'https://www.mayoclinic.org/healthy-lifestyle/adult-health/multimedia/forearm-stretches/vid-20084698',
+        referenceLabel: 'Mayo Clinic',
+        technique: {
+          summary: 'Move your wrists through flexion, extension and circles to loosen up the forearms.',
+          setup: ['Extend your arms in front of you or rest hands on your thighs.'],
+          execution: [
+            'Flex and extend your wrists through a comfortable range.',
+            'Circle your wrists slowly in both directions.',
+            'Gently stretch the wrist by pressing the palm back with the other hand if it feels good.',
+          ],
+          mistakes: ['Forcing the range of motion instead of moving gently.'],
+        },
       },
     ],
   },
@@ -242,4 +595,8 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
 
 export function getFunctionalSession(id: string): FunctionalSession | undefined {
   return FUNCTIONAL_SESSIONS.find(s => s.id === id)
+}
+
+export function getFunctionalExercise(sessionId: string, exerciseId: string) {
+  return getFunctionalSession(sessionId)?.exercises.find(e => e.id === exerciseId)
 }

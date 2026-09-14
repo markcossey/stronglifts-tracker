@@ -94,6 +94,13 @@ export interface PrescribedWorkout {
 export type FunctionalSessionId = 'fm1' | 'fm2'
 export type FunctionalSectionId = 'warmup' | 'main' | 'cooldown'
 
+export interface FunctionalExerciseTechnique {
+  summary: string
+  setup: string[]
+  execution: string[]
+  mistakes: string[]
+}
+
 export interface FunctionalExerciseDef {
   id: string
   name: string
@@ -104,6 +111,10 @@ export interface FunctionalExerciseDef {
   equipment: string[]
   /** Not required in order to finish the session (e.g. "choose two" cooldown stretches). */
   optional?: boolean
+  technique?: FunctionalExerciseTechnique
+  /** A verified external demo (video or reference page) for exercises that are hard to picture from text alone. */
+  referenceUrl?: string
+  referenceLabel?: string
 }
 
 export const FUNCTIONAL_CATEGORY = 'Functional / Maintenance' as const

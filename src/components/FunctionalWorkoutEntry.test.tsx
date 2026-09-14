@@ -22,6 +22,7 @@ describe('FunctionalWorkoutEntry', () => {
         session={session}
         draft={null}
         tapFeedback={{ ...DEFAULT_TAP_FEEDBACK, haptics: false }}
+        onOpenExercise={() => {}}
         onComplete={() => {}}
         onCancel={() => {}}
       />,
@@ -38,6 +39,7 @@ describe('FunctionalWorkoutEntry', () => {
         session={fm2}
         draft={null}
         tapFeedback={{ ...DEFAULT_TAP_FEEDBACK, haptics: false }}
+        onOpenExercise={() => {}}
         onComplete={onComplete}
         onCancel={() => {}}
       />,
@@ -77,6 +79,7 @@ describe('FunctionalWorkoutEntry', () => {
         session={session}
         draft={draft}
         tapFeedback={{ ...DEFAULT_TAP_FEEDBACK, haptics: false }}
+        onOpenExercise={() => {}}
         onComplete={() => {}}
         onCancel={() => {}}
       />,

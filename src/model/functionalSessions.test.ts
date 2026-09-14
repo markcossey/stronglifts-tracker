@@ -80,4 +80,24 @@ describe('FUNCTIONAL_SESSIONS', () => {
   test('getFunctionalSession returns undefined for an unknown id', () => {
     expect(getFunctionalSession('nope')).toBeUndefined()
   })
+
+  test('every exercise has step-by-step technique cues', () => {
+    for (const session of FUNCTIONAL_SESSIONS) {
+      for (const exercise of session.exercises) {
+        expect(exercise.technique, `${exercise.id} is missing technique cues`).toBeDefined()
+        expect(exercise.technique!.summary.length).toBeGreaterThan(0)
+        expect(exercise.technique!.setup.length).toBeGreaterThan(0)
+        expect(exercise.technique!.execution.length).toBeGreaterThan(0)
+      }
+    }
+  })
+
+  test('every exercise has a verified https reference link with a source label', () => {
+    for (const session of FUNCTIONAL_SESSIONS) {
+      for (const exercise of session.exercises) {
+        expect(exercise.referenceUrl, `${exercise.id} is missing a reference link`).toMatch(/^https:\/\//)
+        expect(exercise.referenceLabel, `${exercise.id} is missing a reference label`).toBeTruthy()
+      }
+    }
+  })
 })
