@@ -1,19 +1,24 @@
 import { useState } from 'react'
-import type { AppState, BodyWeightEntry, BodyWeightUnits, LiftId, PrescribedWorkout, Workout, WorkoutType } from '../model/types'
+import type { AppState, BodyWeightEntry, BodyWeightUnits, FunctionalSessionId, FunctionalWorkout, LiftId, PrescribedWorkout, Workout, WorkoutType } from '../model/types'
 import { DEFAULT_TAP_FEEDBACK, LIFT_DISPLAY_NAMES } from '../model/defaults'
 import { getWorkoutPrescription } from '../model/programme'
 import { loadDraft } from '../model/workoutDraft'
+import { loadFunctionalDraft } from '../model/functionalDraft'
+import { FUNCTIONAL_SESSIONS, getFunctionalSession } from '../model/functionalSessions'
 import { localDateString } from '../model/dates'
 import Button from '../ui/Button'
 import BodyWeightCard from './BodyWeightCard'
 import Dashboard from './Dashboard'
 import WorkoutEntry from './WorkoutEntry'
 import WorkoutSummary from './WorkoutSummary'
+import FunctionalWorkoutEntry from './FunctionalWorkoutEntry'
+import FunctionalWorkoutSummary from './FunctionalWorkoutSummary'
 
 interface TodayProps {
   state: AppState
   prescription: PrescribedWorkout
   onCompleteWorkout: (workout: Workout) => void
+  onCompleteFunctionalWorkout: (workout: FunctionalWorkout) => void
   onOpenLift: (liftId: LiftId) => void
   onOpenBodyWeight: () => void
   onSaveBodyWeight: (entry: BodyWeightEntry, previousDate: string | undefined, bodyWeightUnits: BodyWeightUnits) => void
@@ -23,6 +28,8 @@ type ViewState =
   | { mode: 'overview' }
   | { mode: 'workout' }
   | { mode: 'summary'; workout: Workout }
+  | { mode: 'functional'; sessionId: FunctionalSessionId }
+  | { mode: 'functionalSummary'; workout: FunctionalWorkout }
 
 function getPrescriptionForType(state: AppState, type: WorkoutType): PrescribedWorkout {
   const overridden = { ...state, nextWorkoutType: type }
@@ -33,12 +40,20 @@ export default function Today({
   state,
   prescription,
   onCompleteWorkout,
+  onCompleteFunctionalWorkout,
   onOpenLift,
   onOpenBodyWeight,
   onSaveBodyWeight,
 }: TodayProps) {
   const [draft, setDraft] = useState(loadDraft)
-  const [view, setView] = useState<ViewState>(draft ? { mode: 'workout' } : { mode: 'overview' })
+  const [functionalDraft, setFunctionalDraft] = useState(loadFunctionalDraft)
+  const [view, setView] = useState<ViewState>(
+    draft
+      ? { mode: 'workout' }
+      : functionalDraft
+        ? { mode: 'functional', sessionId: functionalDraft.sessionId }
+        : { mode: 'overview' },
+  )
   const [typeOverride, setTypeOverride] = useState<WorkoutType | null>(null)
 
   const recommendedType = state.nextWorkoutType
@@ -52,6 +67,43 @@ export default function Today({
     setDraft(null)
     setTypeOverride(null)
     setView({ mode: 'summary', workout })
+  }
+
+  function handleFunctionalComplete(workout: FunctionalWorkout) {
+    onCompleteFunctionalWorkout(workout)
+    setFunctionalDraft(null)
+    setView({ mode: 'functionalSummary', workout })
+  }
+
+  if (view.mode === 'functional') {
+    const session = getFunctionalSession(view.sessionId)!
+    return (
+      <div className="p-4 max-w-lg mx-auto">
+        <FunctionalWorkoutEntry
+          session={session}
+          draft={functionalDraft}
+          tapFeedback={state.tapFeedback ?? DEFAULT_TAP_FEEDBACK}
+          onComplete={handleFunctionalComplete}
+          onCancel={() => {
+            setFunctionalDraft(null)
+            setView({ mode: 'overview' })
+          }}
+        />
+      </div>
+    )
+  }
+
+  if (view.mode === 'functionalSummary') {
+    const session = getFunctionalSession(view.workout.sessionId)!
+    return (
+      <div className="p-4 max-w-lg mx-auto">
+        <FunctionalWorkoutSummary
+          workout={view.workout}
+          session={session}
+          onDone={() => setView({ mode: 'overview' })}
+        />
+      </div>
+    )
   }
 
   if (view.mode === 'workout') {
@@ -151,6 +203,29 @@ export default function Today({
         <Button fullWidth size="lg" onClick={() => setView({ mode: 'workout' })}>
           Start Workout
         </Button>
+      </div>
+
+      <div className="bg-gray-900 rounded-xl border border-gray-800 p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-100">Functional / Maintenance</h2>
+          <span className="text-xs font-semibold text-sky-400 uppercase tracking-wide">Complementary</span>
+        </div>
+        <p className="text-sm text-gray-400">
+          Low-intensity mobility &amp; stability work to alternate with StrongLifts — not a progression session. 25-30 min · RPE 5-6.
+        </p>
+        <div className="space-y-2">
+          {FUNCTIONAL_SESSIONS.map(session => (
+            <button
+              key={session.id}
+              type="button"
+              onClick={() => setView({ mode: 'functional', sessionId: session.id })}
+              className="w-full text-left bg-gray-800 hover:bg-gray-700 active:bg-gray-600 rounded-lg p-3 transition-colors"
+            >
+              <div className="font-semibold text-gray-100">{session.name}</div>
+              <div className="text-xs text-gray-400">{session.focus}</div>
+            </button>
+          ))}
+        </div>
       </div>
 
       <Dashboard state={state} onOpenLift={onOpenLift} />

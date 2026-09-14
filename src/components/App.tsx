@@ -65,6 +65,7 @@ export default function App() {
           state={app.state}
           prescription={app.prescription}
           onCompleteWorkout={app.completeWorkout}
+          onCompleteFunctionalWorkout={app.completeFunctionalWorkout}
           onOpenLift={openLiftDetail}
           onOpenBodyWeight={openBodyWeight}
           onSaveBodyWeight={app.saveBodyWeight}
@@ -75,6 +76,8 @@ export default function App() {
           state={app.state}
           onEditWorkout={app.editWorkout}
           onDeleteWorkout={app.deleteWorkout}
+          onEditFunctionalWorkout={app.editFunctionalWorkout}
+          onDeleteFunctionalWorkout={app.deleteFunctionalWorkout}
         />
       )}
       {activeTab === 'progress' && (

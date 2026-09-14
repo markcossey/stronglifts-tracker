@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import type { AppState, BodyWeightEntry, BodyWeightUnits, LiftId, SavedReview, Units, Workout } from '../model/types'
+import type { AppState, BodyWeightEntry, BodyWeightUnits, FunctionalWorkout, LiftId, SavedReview, Units, Workout } from '../model/types'
 import { deleteBodyWeight, saveBodyWeight, saveBodyWeightUnits } from '../model/bodyWeight'
 import { deleteReview, saveReview } from '../model/reviews'
 import {
@@ -12,7 +12,13 @@ import {
   updateWorkoutInHistory,
   deleteWorkoutFromHistory,
 } from '../model/programme'
+import {
+  completeFunctionalWorkout,
+  deleteFunctionalWorkoutFromHistory,
+  updateFunctionalWorkoutInHistory,
+} from '../model/functional'
 import { clearDraft } from '../model/workoutDraft'
+import { clearFunctionalDraft } from '../model/functionalDraft'
 
 const STORAGE_KEY = 'stronglifts-app-state'
 
@@ -46,6 +52,18 @@ export function useAppState() {
 
   const deleteWorkout = useCallback((workoutId: string) => {
     setState(prev => prev ? deleteWorkoutFromHistory(prev, workoutId) : prev)
+  }, [])
+
+  const completeFunctional = useCallback((workout: FunctionalWorkout) => {
+    setState(prev => prev ? completeFunctionalWorkout(prev, workout) : prev)
+  }, [])
+
+  const editFunctional = useCallback((workoutId: string, updated: FunctionalWorkout) => {
+    setState(prev => prev ? updateFunctionalWorkoutInHistory(prev, workoutId, updated) : prev)
+  }, [])
+
+  const deleteFunctional = useCallback((workoutId: string) => {
+    setState(prev => prev ? deleteFunctionalWorkoutFromHistory(prev, workoutId) : prev)
   }, [])
 
   const updateSettings = useCallback((updates: Partial<Pick<AppState, 'increments' | 'tapFeedback'>>) => {
@@ -96,6 +114,7 @@ export function useAppState() {
   const resetApp = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY)
     clearDraft()
+    clearFunctionalDraft()
     setState(null)
   }, [])
 
@@ -105,6 +124,7 @@ export function useAppState() {
 
   const replaceState = useCallback((next: AppState) => {
     clearDraft()
+    clearFunctionalDraft()
     setState(next)
   }, [])
 
@@ -114,6 +134,9 @@ export function useAppState() {
     completeWorkout,
     editWorkout,
     deleteWorkout,
+    completeFunctionalWorkout: completeFunctional,
+    editFunctionalWorkout: editFunctional,
+    deleteFunctionalWorkout: deleteFunctional,
     updateSettings,
     updateLiftWeight,
     initializeApp,
