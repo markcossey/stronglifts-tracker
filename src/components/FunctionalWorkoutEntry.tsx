@@ -169,31 +169,52 @@ export default function FunctionalWorkoutEntry({
 
             {indices.map(([ex, exIdx]) => (
               <div key={ex.id} className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-3">
-                <div>
-                  <h4>
+                <div className="flex gap-3">
+                  {ex.thumbnailUrl && (
                     <button
                       type="button"
                       onClick={() => onOpenExercise(session.id, ex.id)}
-                      className="flex items-center gap-1 text-lg font-bold text-gray-100 hover:text-white active:text-sky-400 transition-colors"
+                      aria-label={`${ex.name} demo`}
+                      className="shrink-0"
                     >
-                      {ex.name}
-                      {ex.optional && <span className="text-xs font-normal text-gray-500"> (optional)</span>}
-                      <svg viewBox="0 0 24 24" className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
-                        <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+                      <img
+                        src={ex.thumbnailUrl}
+                        alt=""
+                        aria-hidden="true"
+                        className="w-16 h-16 rounded-lg object-cover border border-gray-700 bg-gray-800"
+                        loading="lazy"
+                        onError={e => {
+                          e.currentTarget.closest('button')!.hidden = true
+                        }}
+                      />
                     </button>
-                  </h4>
-                  <p className="text-sm text-gray-400">{ex.prescription}</p>
-                  {ex.cue && <p className="text-xs text-gray-500 italic mt-0.5">{ex.cue}</p>}
-                  {ex.equipment.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {ex.equipment.map(item => (
-                        <span key={item} className="text-[11px] font-medium text-gray-400 bg-gray-800 border border-gray-700 rounded-full px-2 py-0.5">
-                          {item}
-                        </span>
-                      ))}
-                    </div>
                   )}
+                  <div className="min-w-0 flex-1">
+                    <h4>
+                      <button
+                        type="button"
+                        onClick={() => onOpenExercise(session.id, ex.id)}
+                        className="flex items-center gap-1 text-lg font-bold text-gray-100 hover:text-white active:text-sky-400 transition-colors"
+                      >
+                        {ex.name}
+                        {ex.optional && <span className="text-xs font-normal text-gray-500"> (optional)</span>}
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+                          <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </button>
+                    </h4>
+                    <p className="text-sm text-gray-400">{ex.prescription}</p>
+                    {ex.cue && <p className="text-xs text-gray-500 italic mt-0.5">{ex.cue}</p>}
+                    {ex.equipment.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {ex.equipment.map(item => (
+                          <span key={item} className="text-[11px] font-medium text-gray-400 bg-gray-800 border border-gray-700 rounded-full px-2 py-0.5">
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex gap-2 justify-center pt-1">

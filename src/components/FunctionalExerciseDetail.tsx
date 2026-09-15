@@ -70,9 +70,21 @@ export default function FunctionalExerciseDetail({ sessionId, exerciseId, onBack
           href={exercise.referenceUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between bg-sky-950/40 border border-sky-900 rounded-xl p-4 hover:bg-sky-950/60 transition-colors"
+          className="flex items-center gap-3 bg-sky-950/40 border border-sky-900 rounded-xl p-4 hover:bg-sky-950/60 transition-colors"
         >
-          <div>
+          {exercise.thumbnailUrl && (
+            <img
+              src={exercise.thumbnailUrl}
+              alt=""
+              aria-hidden="true"
+              className="w-20 h-20 rounded-lg object-cover border border-sky-900 bg-gray-800 shrink-0"
+              loading="lazy"
+              onError={e => {
+                e.currentTarget.hidden = true
+              }}
+            />
+          )}
+          <div className="flex-1 min-w-0">
             <div className="font-semibold text-sky-400">Watch a demo</div>
             {exercise.referenceLabel && <div className="text-xs text-gray-400 mt-0.5">{exercise.referenceLabel}</div>}
           </div>

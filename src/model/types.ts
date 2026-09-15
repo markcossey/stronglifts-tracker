@@ -115,6 +115,8 @@ export interface FunctionalExerciseDef {
   /** A verified external demo (video or reference page) for exercises that are hard to picture from text alone. */
   referenceUrl?: string
   referenceLabel?: string
+  /** A small preview image for the reference above — omitted where no reliable thumbnail exists. */
+  thumbnailUrl?: string
 }
 
 export const FUNCTIONAL_CATEGORY = 'Functional / Maintenance' as const

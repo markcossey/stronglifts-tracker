@@ -34,6 +34,7 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         equipment: [],
         referenceUrl: 'https://www.youtube.com/watch?v=wolAuQwCLbU',
         referenceLabel: 'Video by TonyGentilcore.com',
+        thumbnailUrl: 'https://img.youtube.com/vi/wolAuQwCLbU/hqdefault.jpg',
         technique: {
           summary: 'Rotate both legs together from one 90/90 hip position to the other, staying tall through your spine.',
           setup: [
@@ -62,6 +63,7 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         equipment: [],
         referenceUrl: 'https://www.youtube.com/watch?v=tpczTeSkHz0',
         referenceLabel: 'Video by FitnessFAQs',
+        thumbnailUrl: 'https://img.youtube.com/vi/tpczTeSkHz0/hqdefault.jpg',
         technique: {
           summary: 'Shift your weight into one bent leg while the other leg stays straight, sitting your hips low and back.',
           setup: ['Feet wide, toes turned out slightly, hands together in front of your chest for balance.'],
@@ -85,8 +87,9 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '8 reps',
         cue: 'Pause in the bottom and gently move the knees side to side.',
         equipment: [],
-        referenceUrl: 'https://www.muscleandstrength.com/exercises/deep-squat-prying',
-        referenceLabel: 'Muscle & Strength exercise guide',
+        referenceUrl: 'https://www.youtube.com/watch?v=7Sxo7Xtx2Ks',
+        referenceLabel: 'Video by StrongFirst',
+        thumbnailUrl: 'https://img.youtube.com/vi/7Sxo7Xtx2Ks/hqdefault.jpg',
         technique: {
           summary: 'Sink into a deep squat and use your elbows to gently pry your knees open.',
           setup: ['Feet slightly wider than shoulder-width, toes turned out.', 'Sink into the bottom of a squat, heels down.'],
@@ -112,6 +115,7 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         equipment: [],
         referenceUrl: 'https://www.youtube.com/watch?v=Fa4ZMS5M7xA',
         referenceLabel: 'Video by Yoga52',
+        thumbnailUrl: 'https://img.youtube.com/vi/Fa4ZMS5M7xA/hqdefault.jpg',
         technique: {
           summary: 'Alternate between arching and rounding your spine on hands and knees.',
           setup: ['Hands under shoulders, knees under hips, spine neutral.'],
@@ -134,8 +138,9 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '8 reps each leg',
         cue: 'Light/moderate weight. 2-3 second eccentric. RPE 5-6. Focus on hip, knee and ankle control.',
         equipment: ['Barbell', 'Landmine attachment'],
-        referenceUrl: 'https://www.muscleandstrength.com/exercises/landmine-reverse-lunge',
-        referenceLabel: 'Muscle & Strength exercise guide',
+        referenceUrl: 'https://www.youtube.com/watch?v=HHzBjUHrWf4',
+        referenceLabel: 'Video by Fitness 4 Back Pain',
+        thumbnailUrl: 'https://img.youtube.com/vi/HHzBjUHrWf4/hqdefault.jpg',
         technique: {
           summary: 'Hold the landmine sleeve at your shoulder or chest and step back into a controlled reverse lunge.',
           setup: [
@@ -163,8 +168,9 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '8 reps each side',
         cue: 'Prefer kettlebell. Light/moderate weight, controlled movement. Focus on hamstrings, glutes, balance and hip stability.',
         equipment: ['Kettlebell'],
-        referenceUrl: 'https://www.muscleandstrength.com/exercises/1-kettlebell-single-leg-deadlift',
-        referenceLabel: 'Muscle & Strength exercise guide',
+        referenceUrl: 'https://www.youtube.com/watch?v=vJwYbv64b4w',
+        referenceLabel: 'Video by Dan John',
+        thumbnailUrl: 'https://img.youtube.com/vi/vJwYbv64b4w/hqdefault.jpg',
         technique: {
           summary: 'Hinge at the hip over one leg while the other leg extends behind you for balance.',
           setup: [
@@ -193,6 +199,7 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         equipment: ['Ab roller'],
         referenceUrl: 'https://www.youtube.com/watch?v=Pdd1gG8NtM4',
         referenceLabel: 'Video by SURGE Strength',
+        thumbnailUrl: 'https://img.youtube.com/vi/Pdd1gG8NtM4/hqdefault.jpg',
         technique: {
           summary: 'Roll the wheel out from your knees while keeping your core braced, then pull back in.',
           setup: ['Kneel on a mat, hands on the ab roller handles, wheel under your shoulders.'],
@@ -215,8 +222,9 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         sets: 1,
         prescription: '45 seconds each side',
         equipment: [],
-        referenceUrl: 'https://www.functionalmovement.com/Exercises/788/half_kneeling_hip_flexor_stretch',
-        referenceLabel: 'Functional Movement Systems',
+        referenceUrl: 'https://www.youtube.com/watch?v=F55tzqJggAY',
+        referenceLabel: 'Video by B3 Physical Therapy',
+        thumbnailUrl: 'https://img.youtube.com/vi/F55tzqJggAY/hqdefault.jpg',
         technique: {
           summary: 'Kneel with one knee down and gently shift your hips forward to stretch the front of that hip.',
           setup: ['Kneel on one knee with the other foot planted in front, both at roughly 90°.'],
@@ -238,8 +246,9 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         sets: 1,
         prescription: '45 seconds each side',
         equipment: [],
-        referenceUrl: 'https://library.theprehabguys.com/vimeo-video/hamstring-stretch/',
-        referenceLabel: 'The Prehab Guys',
+        referenceUrl: 'https://www.youtube.com/watch?v=cZrwnHCmuwM',
+        referenceLabel: 'Video by Bob and Brad',
+        thumbnailUrl: 'https://img.youtube.com/vi/cZrwnHCmuwM/hqdefault.jpg',
         technique: {
           summary: 'Extend one leg out and hinge forward from the hips to stretch the back of that leg.',
           setup: ['Sit or stand with one leg extended, heel down, toes up.'],
@@ -263,6 +272,7 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         equipment: [],
         referenceUrl: 'https://www.youtube.com/watch?v=4pabcKldodc',
         referenceLabel: 'Video by Lionstrong',
+        thumbnailUrl: 'https://img.youtube.com/vi/4pabcKldodc/hqdefault.jpg',
         technique: {
           summary: 'Sink into the bottom of a squat and hold, keeping your heels down and chest tall.',
           setup: ['Feet shoulder-width or slightly wider, toes turned out slightly.'],
@@ -299,6 +309,7 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         equipment: ['Resistance band'],
         referenceUrl: 'https://www.youtube.com/watch?v=20rhTxoJVuw',
         referenceLabel: 'Video by Coach Roback',
+        thumbnailUrl: 'https://img.youtube.com/vi/20rhTxoJVuw/hqdefault.jpg',
         technique: {
           summary: 'Pull a resistance band apart at chest height, squeezing your shoulder blades together.',
           setup: ['Hold the band with both hands, arms extended in front of you at chest height.'],
@@ -323,6 +334,7 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         equipment: [],
         referenceUrl: 'https://www.youtube.com/watch?v=snzLuyYgbVI',
         referenceLabel: 'Video by Ask Doctor Jo',
+        thumbnailUrl: 'https://img.youtube.com/vi/snzLuyYgbVI/hqdefault.jpg',
         technique: {
           summary: 'Rotate your upper back while keeping your hips still, to open up mid-back mobility.',
           setup: ['On hands and knees, or side-lying, with one hand behind your head.'],
@@ -345,8 +357,9 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '10 reps',
         cue: 'Controlled.',
         equipment: [],
-        referenceUrl: 'https://library.theprehabguys.com/vimeo-video/high-plank-scapula-push-up/',
-        referenceLabel: 'The Prehab Guys',
+        referenceUrl: 'https://www.youtube.com/shorts/AVJXi4DLOCA',
+        referenceLabel: 'Video by Bob and Brad',
+        thumbnailUrl: 'https://img.youtube.com/vi/AVJXi4DLOCA/hqdefault.jpg',
         technique: {
           summary: 'From a push-up plank, move your shoulder blades apart and together without bending your elbows.',
           setup: ['Plank position on hands (or forearms), arms straight, body in a line.'],
@@ -371,6 +384,7 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         equipment: [],
         referenceUrl: 'https://www.youtube.com/watch?v=PruXF-NE2zI',
         referenceLabel: 'Video by Ask Doctor Jo',
+        thumbnailUrl: 'https://img.youtube.com/vi/PruXF-NE2zI/hqdefault.jpg',
         technique: {
           summary: 'Gently rotate your head side to side through a comfortable range of motion.',
           setup: ['Stand or sit tall, shoulders relaxed.'],
@@ -421,8 +435,9 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         prescription: '8 reps each side',
         cue: "Light/moderate weight. RPE 5-6. Stay within the landmine's forward/upward arc — no overhead press or overhead clearance.",
         equipment: ['Barbell', 'Landmine attachment'],
-        referenceUrl: 'https://www.muscleandstrength.com/exercises/half-kneeling-landmine-press',
-        referenceLabel: 'Muscle & Strength exercise guide',
+        referenceUrl: 'https://www.youtube.com/watch?v=w-OtGwzzyDc',
+        referenceLabel: 'Video by Nick Tumminello',
+        thumbnailUrl: 'https://img.youtube.com/vi/w-OtGwzzyDc/hqdefault.jpg',
         technique: {
           summary: 'Press the landmine sleeve forward and up from your shoulder while kneeling, staying within its natural arc.',
           setup: [
@@ -450,6 +465,7 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         equipment: ['Resistance band'],
         referenceUrl: 'https://www.youtube.com/watch?v=AlTGQrDOd98',
         referenceLabel: 'Video by Runna',
+        thumbnailUrl: 'https://img.youtube.com/vi/AlTGQrDOd98/hqdefault.jpg',
         technique: {
           summary: 'Pull a band towards your face, leading with your elbows high, to work the upper back and rear shoulders.',
           setup: ['Anchor the band at roughly face height.', 'Hold with both hands, arms extended towards the anchor.'],
@@ -501,8 +517,9 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         cue: 'Choose two cool-down stretches.',
         equipment: [],
         optional: true,
-        referenceUrl: 'https://www.mayoclinic.org/healthy-lifestyle/stress-management/multimedia/childs-pose/vid-20453580',
-        referenceLabel: 'Mayo Clinic',
+        referenceUrl: 'https://www.youtube.com/watch?v=eqVMAPM00DM',
+        referenceLabel: 'Video by Yoga With Adriene',
+        thumbnailUrl: 'https://img.youtube.com/vi/eqVMAPM00DM/hqdefault.jpg',
         technique: {
           summary: 'Sit your hips back towards your heels with arms extended forward to stretch your back and shoulders.',
           setup: ['Kneel on the floor, big toes touching, knees apart.'],
@@ -523,8 +540,9 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         cue: 'Using a bench if appropriate. Choose two cool-down stretches.',
         equipment: [],
         optional: true,
-        referenceUrl: 'https://library.theprehabguys.com/vimeo-video/thoracic-spine-extension-on-foam-roller/',
-        referenceLabel: 'The Prehab Guys',
+        referenceUrl: 'https://www.youtube.com/watch?v=7CQc5JpyZso',
+        referenceLabel: 'Video by E3 Rehab',
+        thumbnailUrl: 'https://img.youtube.com/vi/7CQc5JpyZso/hqdefault.jpg',
         technique: {
           summary: 'Extend your upper back over a support (like a bench or foam roller) to open up the mid-back.',
           setup: [
@@ -553,6 +571,7 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         optional: true,
         referenceUrl: 'https://www.youtube.com/watch?v=M850sCj9LHQ',
         referenceLabel: 'Video by MedBridge',
+        thumbnailUrl: 'https://img.youtube.com/vi/M850sCj9LHQ/hqdefault.jpg',
         technique: {
           summary: 'Use a doorway to stretch the chest by placing your forearm on the frame and stepping through.',
           setup: ['Stand in a doorway, forearm and elbow against the frame at roughly shoulder height.'],
@@ -576,8 +595,9 @@ export const FUNCTIONAL_SESSIONS: FunctionalSession[] = [
         cue: 'Choose two cool-down stretches.',
         equipment: [],
         optional: true,
-        referenceUrl: 'https://www.mayoclinic.org/healthy-lifestyle/adult-health/multimedia/forearm-stretches/vid-20084698',
-        referenceLabel: 'Mayo Clinic',
+        referenceUrl: 'https://www.youtube.com/watch?v=tV0b58Mc5VM',
+        referenceLabel: 'Video by Bob and Brad',
+        thumbnailUrl: 'https://img.youtube.com/vi/tV0b58Mc5VM/hqdefault.jpg',
         technique: {
           summary: 'Move your wrists through flexion, extension and circles to loosen up the forearms.',
           setup: ['Extend your arms in front of you or rest hands on your thighs.'],
