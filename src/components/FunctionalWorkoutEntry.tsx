@@ -181,7 +181,7 @@ export default function FunctionalWorkoutEntry({
                         src={ex.thumbnailUrl}
                         alt=""
                         aria-hidden="true"
-                        className="w-16 h-16 rounded-lg object-cover border border-gray-700 bg-gray-800"
+                        className="w-28 h-28 rounded-lg object-cover border border-gray-700 bg-gray-800"
                         loading="lazy"
                         onError={e => {
                           e.currentTarget.closest('button')!.hidden = true

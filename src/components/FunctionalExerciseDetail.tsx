@@ -77,7 +77,7 @@ export default function FunctionalExerciseDetail({ sessionId, exerciseId, onBack
               src={exercise.thumbnailUrl}
               alt=""
               aria-hidden="true"
-              className="w-20 h-20 rounded-lg object-cover border border-sky-900 bg-gray-800 shrink-0"
+              className="w-32 h-32 rounded-lg object-cover border border-sky-900 bg-gray-800 shrink-0"
               loading="lazy"
               onError={e => {
                 e.currentTarget.hidden = true
