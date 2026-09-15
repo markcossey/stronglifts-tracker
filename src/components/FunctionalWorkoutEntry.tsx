@@ -170,12 +170,13 @@ export default function FunctionalWorkoutEntry({
             {indices.map(([ex, exIdx]) => (
               <div key={ex.id} className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-3">
                 <div className="flex gap-3">
-                  {ex.thumbnailUrl && (
-                    <button
-                      type="button"
-                      onClick={() => onOpenExercise(session.id, ex.id)}
-                      aria-label={`${ex.name} demo`}
-                      className="shrink-0"
+                  {ex.thumbnailUrl && ex.referenceUrl && (
+                    <a
+                      href={ex.referenceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Watch ${ex.name} demo`}
+                      className="relative shrink-0"
                     >
                       <img
                         src={ex.thumbnailUrl}
@@ -184,10 +185,17 @@ export default function FunctionalWorkoutEntry({
                         className="w-28 h-28 rounded-lg object-cover border border-gray-700 bg-gray-800"
                         loading="lazy"
                         onError={e => {
-                          e.currentTarget.closest('button')!.hidden = true
+                          e.currentTarget.closest('a')!.hidden = true
                         }}
                       />
-                    </button>
+                      <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+                        <span className="w-9 h-9 rounded-full bg-black/50 flex items-center justify-center">
+                          <svg viewBox="0 0 24 24" className="w-4 h-4 text-white translate-x-[1px]" fill="currentColor">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </span>
+                      </span>
+                    </a>
                   )}
                   <div className="min-w-0 flex-1">
                     <h4>
