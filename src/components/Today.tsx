@@ -29,6 +29,7 @@ type ViewState =
   | { mode: 'overview' }
   | { mode: 'workout' }
   | { mode: 'summary'; workout: Workout }
+  | { mode: 'functionalPicker' }
   | { mode: 'functional'; sessionId: FunctionalSessionId }
   | { mode: 'functionalSummary'; workout: FunctionalWorkout }
 
@@ -75,6 +76,44 @@ export default function Today({
     onCompleteFunctionalWorkout(workout)
     setFunctionalDraft(null)
     setView({ mode: 'functionalSummary', workout })
+  }
+
+  if (view.mode === 'functionalPicker') {
+    return (
+      <div className="p-4 max-w-lg mx-auto space-y-4">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setView({ mode: 'overview' })}
+            aria-label="Back"
+            className="text-gray-400 hover:text-gray-200 p-1 -ml-1"
+          >
+            <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2}>
+              <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          <h1 className="text-2xl font-bold text-gray-100">Functional / Maintenance</h1>
+        </div>
+
+        <p className="text-sm text-gray-400">
+          Low-intensity mobility &amp; stability work to alternate with StrongLifts — not a progression session. 25-30 min · RPE 5-6.
+        </p>
+
+        <div className="space-y-2">
+          {FUNCTIONAL_SESSIONS.map(session => (
+            <button
+              key={session.id}
+              type="button"
+              onClick={() => setView({ mode: 'functional', sessionId: session.id })}
+              className="w-full text-left bg-gray-900 border border-gray-800 hover:bg-gray-800 active:bg-gray-700 rounded-xl p-4 transition-colors"
+            >
+              <div className="font-semibold text-gray-100">{session.name}</div>
+              <div className="text-xs text-gray-400">{session.focus}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    )
   }
 
   if (view.mode === 'functional') {
@@ -208,28 +247,9 @@ export default function Today({
         </Button>
       </div>
 
-      <div className="bg-gray-900 rounded-xl border border-gray-800 p-5 space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-100">Functional / Maintenance</h2>
-          <span className="text-xs font-semibold text-sky-400 uppercase tracking-wide">Complementary</span>
-        </div>
-        <p className="text-sm text-gray-400">
-          Low-intensity mobility &amp; stability work to alternate with StrongLifts — not a progression session. 25-30 min · RPE 5-6.
-        </p>
-        <div className="space-y-2">
-          {FUNCTIONAL_SESSIONS.map(session => (
-            <button
-              key={session.id}
-              type="button"
-              onClick={() => setView({ mode: 'functional', sessionId: session.id })}
-              className="w-full text-left bg-gray-800 hover:bg-gray-700 active:bg-gray-600 rounded-lg p-3 transition-colors"
-            >
-              <div className="font-semibold text-gray-100">{session.name}</div>
-              <div className="text-xs text-gray-400">{session.focus}</div>
-            </button>
-          ))}
-        </div>
-      </div>
+      <Button fullWidth variant="secondary" onClick={() => setView({ mode: 'functionalPicker' })}>
+        Functional / Maintenance
+      </Button>
 
       <Dashboard state={state} onOpenLift={onOpenLift} />
 
