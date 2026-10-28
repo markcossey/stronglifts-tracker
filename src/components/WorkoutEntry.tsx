@@ -79,6 +79,7 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
   const elapsed = Math.max(0, Math.floor((now - new Date(startTime).getTime()) / 1000))
   const restRemaining = restEndTime === null ? null : Math.ceil((restEndTime - now) / 1000)
   const restOver = restRemaining !== null && restRemaining <= 0
+  const restElapsed = restEndTime === null ? null : Math.max(0, restDuration - restRemaining!)
 
   function adjustWeight(exIdx: number, direction: 1 | -1) {
     const liftId = prescription.exercises[exIdx].liftId
@@ -319,12 +320,12 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
                 <div className="text-xs text-gray-600">tap to dismiss</div>
               </div>
               <div className={`text-2xl font-mono font-bold ${restOver ? 'text-amber-400' : 'text-[#47c23f]'}`}>
-                {restOver ? `+${formatTime(Math.abs(restRemaining))}` : formatTime(restRemaining)}
+                {formatTime(restElapsed!)}
               </div>
               {!restOver && (
                 <div
                   className="absolute left-0 bottom-0 h-1 bg-[#47c23f] transition-all duration-1000"
-                  style={{ width: `${(restRemaining / restDuration) * 100}%` }}
+                  style={{ width: `${(restElapsed! / restDuration) * 100}%` }}
                 />
               )}
             </button>
