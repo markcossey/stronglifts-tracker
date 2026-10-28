@@ -23,8 +23,9 @@ export function useWakeLock(enabled = true) {
         lock.addEventListener('release', () => {
           if (sentinel === lock) sentinel = null
         })
-      } catch {
+      } catch (err) {
         // Refused, e.g. in iOS Low Power Mode; retried on the next tap or return to the app
+        console.warn('Screen wake lock request failed:', err)
       } finally {
         pending = false
       }
