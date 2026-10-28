@@ -25,16 +25,16 @@ function playTone(frequency: number, duration: number, delay = 0, volume = 0.3) 
 
 export function playRestAlert() {
   navigator.vibrate?.([200, 100, 200])
-  playTone(880, 0.2)
-  playTone(880, 0.2, 0.3)
+  playTone(880, 0.35, 0, 0.55)
+  playTone(880, 0.35, 0.4, 0.55)
 }
 
 export type TapKind = 'complete' | 'fail' | 'reset'
 
 export function playTapSound(kind: TapKind) {
-  if (kind === 'complete') playTone(1320, 0.06, 0, 0.2)
-  else if (kind === 'fail') playTone(330, 0.12, 0, 0.25)
-  else playTone(660, 0.04, 0, 0.12)
+  if (kind === 'complete') playTone(1320, 0.09, 0, 0.35)
+  else if (kind === 'fail') playTone(330, 0.16, 0, 0.4)
+  else playTone(660, 0.06, 0, 0.2)
 }
 
 // For browsers with the Vibration API (Android). iPhones don't have it; their haptic comes from the
