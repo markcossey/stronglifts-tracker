@@ -30,7 +30,7 @@ export default function FunctionalExerciseDetail({ sessionId, exerciseId, onBack
 
   if (!session || !exercise) {
     return (
-      <div className="p-4 max-w-lg mx-auto space-y-4">
+      <div className="p-4 max-w-lg md:max-w-2xl mx-auto space-y-4">
         <button type="button" onClick={onBack} className="text-gray-400 hover:text-gray-200 p-1">
           <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2}>
             <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
@@ -42,7 +42,7 @@ export default function FunctionalExerciseDetail({ sessionId, exerciseId, onBack
   }
 
   return (
-    <div className="p-4 max-w-lg mx-auto space-y-4">
+    <div className="p-4 max-w-lg md:max-w-2xl mx-auto space-y-4">
       <div className="flex items-center gap-3">
         <button type="button" onClick={onBack} className="text-gray-400 hover:text-gray-200 p-1">
           <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2}>

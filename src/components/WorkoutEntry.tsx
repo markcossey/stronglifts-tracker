@@ -309,7 +309,7 @@ export default function WorkoutEntry({ prescription: initialPrescription, draft,
               type="button"
               aria-label="Dismiss rest timer"
               onClick={() => setRestEndTime(null)}
-              className={`pointer-events-auto relative overflow-hidden max-w-lg mx-auto w-full flex items-center justify-between gap-3 bg-gray-900/95 backdrop-blur rounded-xl border px-4 py-2.5 shadow-lg shadow-black/50 ${
+              className={`pointer-events-auto relative overflow-hidden max-w-lg md:max-w-2xl mx-auto w-full flex items-center justify-between gap-3 bg-gray-900/95 backdrop-blur rounded-xl border px-4 py-2.5 shadow-lg shadow-black/50 ${
                 restOver ? 'border-amber-400' : 'border-gray-700'
               }`}
             >

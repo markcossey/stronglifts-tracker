@@ -51,7 +51,7 @@ export default function History({
 
   if (selectedWorkout) {
     return (
-      <div className="p-4 max-w-lg mx-auto">
+      <div className="p-4 max-w-lg md:max-w-2xl mx-auto">
         <WorkoutDetail
           workout={selectedWorkout}
           units={state.units}
@@ -73,7 +73,7 @@ export default function History({
   if (selectedEntry?.kind === 'functional') {
     const workout = selectedEntry.workout
     return (
-      <div className="p-4 max-w-lg mx-auto">
+      <div className="p-4 max-w-lg md:max-w-2xl mx-auto">
         <FunctionalWorkoutDetail
           workout={workout}
           onBack={() => setSelectedEntry(null)}
@@ -100,9 +100,10 @@ export default function History({
   })
 
   return (
-    <div className="p-4 max-w-lg mx-auto space-y-4">
+    <div className="p-4 max-w-lg md:max-w-4xl mx-auto space-y-4">
       <h1 className="text-2xl font-bold text-gray-100">History</h1>
 
+      <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 md:gap-6 md:items-start">
       <WorkoutCalendar workouts={state.workouts} onSelectWorkout={setSelectedWorkout} />
 
       {entries.length === 0 ? (
@@ -191,6 +192,7 @@ export default function History({
           })}
         </div>
       )}
+      </div>
     </div>
   )
 }

@@ -80,7 +80,7 @@ export default function Today({
 
   if (view.mode === 'functionalPicker') {
     return (
-      <div className="p-4 max-w-lg mx-auto space-y-4">
+      <div className="p-4 max-w-lg md:max-w-2xl mx-auto space-y-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -119,7 +119,7 @@ export default function Today({
   if (view.mode === 'functional') {
     const session = getFunctionalSession(view.sessionId)!
     return (
-      <div className="p-4 max-w-lg mx-auto">
+      <div className="p-4 max-w-lg md:max-w-2xl mx-auto">
         <FunctionalWorkoutEntry
           session={session}
           draft={functionalDraft}
@@ -138,7 +138,7 @@ export default function Today({
   if (view.mode === 'functionalSummary') {
     const session = getFunctionalSession(view.workout.sessionId)!
     return (
-      <div className="p-4 max-w-lg mx-auto">
+      <div className="p-4 max-w-lg md:max-w-2xl mx-auto">
         <FunctionalWorkoutSummary
           workout={view.workout}
           session={session}
@@ -150,7 +150,7 @@ export default function Today({
 
   if (view.mode === 'workout') {
     return (
-      <div className="p-4 max-w-lg mx-auto">
+      <div className="p-4 max-w-lg md:max-w-2xl mx-auto">
         <WorkoutEntry
           prescription={activePrescription}
           draft={draft}
@@ -172,7 +172,7 @@ export default function Today({
   if (view.mode === 'summary') {
     const newPrescription = getWorkoutPrescription(state)
     return (
-      <div className="p-4 max-w-lg mx-auto">
+      <div className="p-4 max-w-lg md:max-w-2xl mx-auto">
         <WorkoutSummary
           workout={view.workout}
           state={state}
@@ -188,7 +188,7 @@ export default function Today({
   const didWorkoutToday = lastWorkout?.date === today
 
   return (
-    <div className="p-4 max-w-lg mx-auto space-y-6">
+    <div className="p-4 max-w-lg md:max-w-4xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-100">
           What do I lift today?
@@ -251,9 +251,11 @@ export default function Today({
         Functional / Maintenance
       </Button>
 
-      <Dashboard state={state} onOpenLift={onOpenLift} />
+      <div className="space-y-6 md:space-y-0 md:grid md:grid-cols-2 md:gap-6 md:items-start">
+        <Dashboard state={state} onOpenLift={onOpenLift} />
 
-      <BodyWeightCard state={state} onOpen={onOpenBodyWeight} onSave={onSaveBodyWeight} />
+        <BodyWeightCard state={state} onOpen={onOpenBodyWeight} onSave={onSaveBodyWeight} />
+      </div>
     </div>
   )
 }

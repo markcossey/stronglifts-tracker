@@ -77,7 +77,7 @@ export default function LiftDetail({ liftId, state, onBack }: LiftDetailProps) {
     : null
 
   return (
-    <div className="p-4 max-w-lg mx-auto space-y-4">
+    <div className="p-4 max-w-lg md:max-w-2xl mx-auto space-y-4">
       <div className="flex items-center gap-3">
         <button type="button" onClick={onBack} aria-label="Back" className="text-gray-400 hover:text-gray-200 p-1 -ml-1">
           <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2}>

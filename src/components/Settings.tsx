@@ -150,7 +150,7 @@ export default function Settings({
   }
 
   return (
-    <div className="p-4 max-w-lg mx-auto space-y-6">
+    <div className="p-4 max-w-lg md:max-w-2xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-100">Settings</h1>
 
       <section className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-3">

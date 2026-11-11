@@ -40,7 +40,7 @@ export default function ReviewsDetail({ state, onSave, onDelete, onBack }: Revie
   }
 
   return (
-    <div className="p-4 max-w-lg mx-auto space-y-4">
+    <div className="p-4 max-w-lg md:max-w-2xl mx-auto space-y-4">
       <div className="flex items-center gap-3">
         <button
           type="button"

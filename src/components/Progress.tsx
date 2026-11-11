@@ -21,7 +21,7 @@ export default function Progress({ state, onOpenLift, onOpenBodyWeight, onSaveBo
   const [range, setRange] = useState<ChartRange>('30')
 
   return (
-    <div className="p-4 max-w-lg mx-auto space-y-6">
+    <div className="p-4 max-w-lg md:max-w-2xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-100">Progress</h1>
 
       <PRSection state={state} onOpenLift={onOpenLift} />

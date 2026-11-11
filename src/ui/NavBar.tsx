@@ -48,7 +48,7 @@ const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
 export default function NavBar({ activeTab, onTabChange }: NavBarProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 safe-area-pb">
-      <div className="max-w-lg mx-auto flex">
+      <div className="max-w-lg md:max-w-4xl mx-auto flex">
         {tabs.map(tab => {
           const isActive = activeTab === tab.id
           return (
