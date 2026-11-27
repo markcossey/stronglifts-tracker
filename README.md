@@ -21,15 +21,11 @@ npm run dev -- --host
 
 Then open the **Network** URL (e.g. `http://192.168.x.x:5173`) on your phone. Both devices must be on the same Wi-Fi network.
 
-### Deploy for real
+### Live app
 
-Build the static files and host them anywhere (Netlify, Vercel, GitHub Pages, etc.):
-
-```bash
-npm run build
-```
-
-Output goes to `dist/`. All data is stored in the browser's localStorage — there is no backend.
+The app is live at **https://lifts.markcossey.co.uk** and deploys automatically on every push to
+`main`. Data is stored on each device and kept in sync across devices by a small PHP API on the
+same hosting. See [DEPLOYMENT.md](DEPLOYMENT.md) for how deploys and sync work.
 
 ## What it does
 
@@ -39,6 +35,7 @@ Output goes to `dist/`. All data is stored in the browser's localStorage — the
 - **Progress charts** — weight over time for each lift with success/failure markers
 - **Personal records** — tracks your best successful weight for each lift
 - **Export/import** — backup and restore data as JSON, export history as CSV
+- **Sync across devices** — enter a passcode once per device; works offline and catches up later
 
 ## StrongLifts rules implemented
 
@@ -61,6 +58,10 @@ src/
     programme.test.ts   21 tests covering progression logic
   hooks/
     useAppState.ts      React hook wrapping localStorage persistence
+    useSync.ts          Syncs app state with the server API
+  sync/
+    api.ts              Calls to the sync API
+    merge.ts            Combines changes made on two devices
   components/
     App.tsx             Root component with tab navigation
     Setup.tsx           First-run setup wizard
@@ -74,11 +75,14 @@ src/
     LiftChart.tsx       Weight-over-time chart (Recharts)
     PRSection.tsx       Personal records display
     Settings.tsx        Configuration and data management
+    SyncPanel.tsx       Sync status and passcode form
   ui/
     Button.tsx          Reusable button component
     SetButton.tsx       Tappable set circle (pending/complete/failed)
     StatusBadge.tsx     Lift status indicator
     NavBar.tsx          Bottom tab navigation
+server/
+  api/                  PHP sync API (deployed to /api)
 ```
 
 The programme logic in `src/model/programme.ts` is completely separate from React — pure functions that take state and return new state. All 21 tests run against this layer.
@@ -97,7 +101,7 @@ npm run test:run # single run
 - Tailwind CSS v4
 - Recharts
 - Vitest
-- localStorage (no backend)
+- localStorage on each device, synced via a PHP + MariaDB API
 
 ## Credits
 
