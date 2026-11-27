@@ -9,6 +9,8 @@ import { localDateString } from '../model/dates'
 import Button from '../ui/Button'
 import ConfirmDialog from '../ui/ConfirmDialog'
 import NumberField from '../ui/NumberField'
+import type { SyncControls } from '../hooks/useSync'
+import SyncPanel from './SyncPanel'
 
 interface SettingsProps {
   state: AppState
@@ -18,6 +20,7 @@ interface SettingsProps {
   onExport: () => string
   onReplaceState: (state: AppState) => void
   onReset: () => void
+  sync: SyncControls
 }
 
 interface PendingImport {
@@ -71,6 +74,7 @@ export default function Settings({
   onExport,
   onReplaceState,
   onReset,
+  sync,
 }: SettingsProps) {
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const [pendingUnits, setPendingUnits] = useState<Units | null>(null)
@@ -152,6 +156,8 @@ export default function Settings({
   return (
     <div className="p-4 max-w-lg md:max-w-2xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-100">Settings</h1>
+
+      <SyncPanel sync={sync} />
 
       <section className="bg-gray-900 rounded-xl border border-gray-800 p-4 space-y-3">
         <h3 className="font-semibold text-gray-100">Units</h3>
@@ -328,7 +334,8 @@ export default function Settings({
           onConfirm={onReset}
           onCancel={() => setShowResetConfirm(false)}
         >
-          <p>This will delete all workouts and settings. Consider exporting a backup first.</p>
+          <p>This will delete all workouts and settings on this device. Consider exporting a backup first.</p>
+          {sync.connected && <p>This device will also be disconnected from sync. Your synced copy on the server is not affected.</p>}
         </ConfirmDialog>
       )}
     </div>

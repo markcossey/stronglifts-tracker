@@ -3,13 +3,17 @@ import type { LiftId, Units } from '../model/types'
 import { ALL_LIFTS, LIFT_DISPLAY_NAMES, getDefaultStartingWeights } from '../model/defaults'
 import Button from '../ui/Button'
 import NumberField from '../ui/NumberField'
+import type { SyncControls } from '../hooks/useSync'
+import { SyncConnectForm } from './SyncPanel'
 
 interface SetupProps {
   onComplete: (units: Units, weights: Record<LiftId, number>) => void
+  sync: SyncControls
 }
 
-export default function Setup({ onComplete }: SetupProps) {
+export default function Setup({ onComplete, sync }: SetupProps) {
   const [step, setStep] = useState(0)
+  const [connecting, setConnecting] = useState(false)
   const [units, setUnits] = useState<Units>('kg')
   const [weights, setWeights] = useState<Record<LiftId, number>>(getDefaultStartingWeights('kg'))
 
@@ -30,6 +34,25 @@ export default function Setup({ onComplete }: SetupProps) {
       <Button size="lg" fullWidth onClick={() => setStep(1)}>
         Get Started
       </Button>
+      {connecting ? (
+        <div className="text-left bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-2">
+          {sync.connected ? (
+            <p className="text-sm text-gray-300" aria-live="polite">
+              {sync.phase === 'error'
+                ? sync.error
+                : sync.phase === 'syncing' || !sync.lastSyncedAt
+                  ? 'Loading your data…'
+                  : "Connected, but there's no saved data yet. Tap Get Started to set up."}
+            </p>
+          ) : (
+            <SyncConnectForm sync={sync} submitLabel="Load my data" />
+          )}
+        </div>
+      ) : (
+        <Button variant="ghost" fullWidth onClick={() => setConnecting(true)}>
+          I already use this on another device
+        </Button>
+      )}
     </div>,
 
     // Step 1: Units

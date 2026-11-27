@@ -1,0 +1,6 @@
+Options -Indexes
+
+# Only the endpoints are reachable; config and helpers are not.
+<FilesMatch "^(config|lib)\.php$">
+    Require all denied
+</FilesMatch>

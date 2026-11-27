@@ -19,6 +19,7 @@ import {
 } from '../model/functional'
 import { clearDraft } from '../model/workoutDraft'
 import { clearFunctionalDraft } from '../model/functionalDraft'
+import { useSync } from './useSync'
 
 const STORAGE_KEY = 'stronglifts-app-state'
 
@@ -41,6 +42,10 @@ export function useAppState() {
       localStorage.setItem(STORAGE_KEY, exportData(state))
     }
   }, [state])
+
+  const applyRemoteState = useCallback((next: AppState) => setState(next), [])
+  const sync = useSync(state, applyRemoteState)
+  const { disconnect: disconnectSync } = sync
 
   const completeWorkout = useCallback((workout: Workout) => {
     setState(prev => prev ? processWorkoutResult(prev, workout) : prev)
@@ -111,12 +116,14 @@ export function useAppState() {
     setState(createAppState(units, startingWeights))
   }, [])
 
+  // Resets this device only; it also disconnects sync so the server copy isn't touched.
   const resetApp = useCallback(() => {
+    disconnectSync()
     localStorage.removeItem(STORAGE_KEY)
     clearDraft()
     clearFunctionalDraft()
     setState(null)
-  }, [])
+  }, [disconnectSync])
 
   const doExport = useCallback(() => {
     return state ? exportData(state) : ''
@@ -149,5 +156,6 @@ export function useAppState() {
     saveReview: saveReviewEntry,
     deleteReview: deleteReviewEntry,
     prescription: state ? getWorkoutPrescription(state) : null,
+    sync,
   }
 }

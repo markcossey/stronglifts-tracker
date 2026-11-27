@@ -63,7 +63,7 @@ export default function App() {
   }
 
   if (app.isSetupRequired || !app.state) {
-    return <Setup onComplete={app.initializeApp} />
+    return <Setup onComplete={app.initializeApp} sync={app.sync} />
   }
 
   return (
@@ -109,6 +109,7 @@ export default function App() {
           onExport={app.exportState}
           onReplaceState={app.replaceState}
           onReset={app.resetApp}
+          sync={app.sync}
         />
       )}
       </div>

@@ -10,6 +10,8 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      // The sync API and its setup page are server pages, never the app shell.
+      workbox: { navigateFallbackDenylist: [/^\/api\//] },
       includeAssets: ['icon-180.png', 'lifts/*.svg'],
       manifest: {
         name: 'StrongLifts 5×5',

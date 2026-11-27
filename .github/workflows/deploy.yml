@@ -27,10 +27,12 @@ jobs:
       - name: Install lftp
         run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
 
-      # Mirrors dist/ over encrypted FTP (FTPS) to lifts.markcossey.co.uk.
-      # The FTP account's home folder is the subdomain's document root.
-      # --delete removes old build files, but api/ (the future data-sync
-      # API) and .well-known/ (SSL certificate renewal) are left alone.
+      # Mirrors over encrypted FTP (FTPS) to lifts.markcossey.co.uk; the FTP
+      # account's home folder is the subdomain's document root.
+      # 1. dist/ -> site root. --delete removes old build files but leaves
+      #    api/ and .well-known/ (SSL certificate renewal) alone.
+      # 2. server/api/ -> api/. config.php (DB details + passcode hash, written
+      #    by setup.php on the server) is never uploaded or deleted.
       - name: Upload to hosting
         env:
           FTP_USER: ${{ secrets.FTP_USERNAME }}
@@ -45,4 +47,7 @@ jobs:
               --exclude-glob api/ --exclude-glob .well-known/ \
               --exclude-glob .ftp-deploy-sync-state.json \
               dist/ ./;
+            mirror --reverse --delete --verbose \
+              --exclude-glob config.php \
+              server/api/ ./api/;
             quit"
