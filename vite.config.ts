@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  base: '/stronglifts-tracker/',
+  base: '/',
   plugins: [
     react(),
     tailwindcss(),
@@ -14,13 +14,13 @@ export default defineConfig({
       manifest: {
         name: 'StrongLifts 5×5',
         short_name: 'StrongLifts',
-        start_url: '/stronglifts-tracker/',
+        start_url: '/',
         display: 'standalone',
         background_color: '#000000',
         theme_color: '#030712',
         icons: [
-          { src: '/stronglifts-tracker/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/stronglifts-tracker/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
         ],
       },
     }),
