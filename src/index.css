@@ -5,6 +5,13 @@ html {
   color-scheme: dark;
 }
 
+/* Stop iOS rubber-band overscroll on the page itself: in the home-screen app it drags
+   the fixed tab bar (and rest timer) up and down with the content. */
+html,
+body {
+  overscroll-behavior: none;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
