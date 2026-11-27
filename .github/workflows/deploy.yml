@@ -24,16 +24,25 @@ jobs:
       - run: npm run test:run
       - run: npm run build
 
-      # Uploads dist/ over encrypted FTP (FTPS) to lifts.markcossey.co.uk.
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      # Mirrors dist/ over encrypted FTP (FTPS) to lifts.markcossey.co.uk.
       # The FTP account's home folder is the subdomain's document root.
-      # Only files this action uploaded before are ever deleted, so the
-      # future api/ folder and Let's Encrypt's .well-known/ are left alone.
+      # --delete removes old build files, but api/ (the future data-sync
+      # API) and .well-known/ (SSL certificate renewal) are left alone.
       - name: Upload to hosting
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: plesk101.hostinguk.net
-          protocol: ftps
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist/
-          server-dir: ./
+        env:
+          FTP_USER: ${{ secrets.FTP_USERNAME }}
+          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          lftp --env-password -u "$FTP_USER" plesk101.hostinguk.net -e "
+            set ftp:ssl-force true;
+            set ftp:ssl-protect-data true;
+            set ssl:verify-certificate true;
+            set net:max-retries 3;
+            mirror --reverse --delete --verbose --parallel=4 \
+              --exclude-glob api/ --exclude-glob .well-known/ \
+              --exclude-glob .ftp-deploy-sync-state.json \
+              dist/ ./;
+            quit"
